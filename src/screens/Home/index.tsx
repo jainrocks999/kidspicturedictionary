@@ -34,7 +34,7 @@ const Home: React.FC<props> = ({navigation}) => {
       style={styles.container}
       source={require('../../assets/Bg_image/background.png')}>
       <StatusBar backgroundColor={utils.COLORS.yellow} />
-      <Header ishome />
+      <Header onRightPress={() => null} ishome />
       <CategoryList data={utils.Categoreis} onPress={handleOnCategory} />
     </ImageBackground>
   );

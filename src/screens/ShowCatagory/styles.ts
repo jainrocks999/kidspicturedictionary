@@ -12,7 +12,6 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: hp(2),
-    // backgroundColor: 'white',
     resizeMode: 'stretch',
   },
   mainContainer: {
@@ -39,5 +38,13 @@ export default StyleSheet.create({
   drawer: {
     flex: 1,
     backgroundColor: '#06203b',
+  },
+  recoring: {
+    height: hp(9),
+    width: hp(9),
+    position: 'absolute',
+    zIndex: 1,
+    left: wp(2),
+    top: hp(2),
   },
 });

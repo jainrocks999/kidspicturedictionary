@@ -26,7 +26,7 @@ const DrawerContent: React.FC<props> = ({data, onPress}) => {
         />
       </TouchableOpacity>
       <View style={styles.header}>
-        <Text style={styles.index}>{`Index : ${data[1].category}`}</Text>
+        <Text style={styles.index}>{`Index : ${data[1]?.category}`}</Text>
       </View>
       <View>
         <FlatList

@@ -26,13 +26,27 @@ import TrackPlayer from 'react-native-track-player';
 import {heightPercent} from '../../utils/responsive';
 import {Drawer} from 'react-native-drawer-layout';
 import DrawerContent from '../../components/DrawerContent';
+import Modals from '../../components/Modal';
+import AudioRecorderPlayer, {
+  AVEncoderAudioQualityIOSType,
+  AVEncodingOption,
+  AudioEncoderAndroidType,
+  AudioSourceAndroidType,
+} from 'react-native-audio-recorder-player';
+import RNFS from 'react-native-fs';
 
 type props = StackScreenProps<navigationParams, 'Detail_Screen'>;
 const Detail: React.FC<props> = ({navigation}) => {
+  const audioRecorderPlayer = new AudioRecorderPlayer();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [recoring, setRecording] = useState(false);
   const {data} = useSelector((state: rootState) => state.data);
   const translationX = useSharedValue(0);
   const [count, setCount] = useState(0);
+  const [adio, setAdio] = useState({
+    recordSecs: 0,
+    recordTime: '00:00',
+  });
   const changeImageWithAnimation = async (direction: string) => {
     setCount(pre => (direction == 'next' ? pre + 1 : pre - 1));
     const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
@@ -87,6 +101,58 @@ const Detail: React.FC<props> = ({navigation}) => {
       />
     );
   };
+  const [visible, setVisible] = useState(false);
+  const onRecord = async () => {
+    const path = 'hello.m4a';
+    const audioSet = {
+      AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+      AudioSourceAndroid: AudioSourceAndroidType.MIC,
+      AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+      AVNumberOfChannelsKeyIOS: 2,
+      AVFormatIDKeyIOS: AVEncodingOption.wav,
+    };
+    try {
+      if (!recoring) {
+        setRecording(true);
+        // Path to save the recorded audio
+        const result = await audioRecorderPlayer.startRecorder(path, audioSet);
+        console.log(result);
+        audioRecorderPlayer.addPlayBackListener(e => {
+          setAdio(prev => ({
+            recordSecs: e.currentPosition,
+            recordTime: audioRecorderPlayer.mmssss(
+              Math.floor(e.currentPosition),
+            ),
+          }));
+        });
+      } else {
+        setRecording(false);
+        const result = await audioRecorderPlayer.stopRecorder();
+        audioRecorderPlayer.removePlayBackListener();
+        console.log('Recording stopped, file saved at:', result);
+      }
+    } catch (error) {
+      console.error('Error during recording:', error);
+    }
+  };
+  const onPlay = async () => {
+    const path = 'recorded_audio.m4a';
+    // const track = {
+    //   url: path,
+    //   title: 'name.file',
+    //   artist: 'eFlashApps',
+    //   album: 'eFlashApps',
+    //   genre: 'welcome to geniues baby flash cards',
+    //   date: new Date().toDateString(),
+    //   artwork: path,
+    //   duration: 4,
+    // };
+    // console.log(path);
+
+    // await utils.player(track);
+    audioRecorderPlayer.startPlayer(path);
+    audioRecorderPlayer.setVolume(100);
+  };
 
   return (
     <Drawer
@@ -100,6 +166,13 @@ const Detail: React.FC<props> = ({navigation}) => {
         style={styles.container}
         source={require('../../assets/Bg_image/background.png')}>
         <Header ishome={false} onRightPress={() => setOpen(prev => !prev)} />
+        <Modals
+          onRecord={() => onRecord()}
+          onClose={() => setVisible(false)}
+          onPlay={() => onPlay()}
+          visible={visible}
+          recoring={recoring}
+        />
         <PanGestureHandler
           onGestureEvent={({nativeEvent}) => {
             translationX.value = nativeEvent.translationX;
@@ -126,6 +199,16 @@ const Detail: React.FC<props> = ({navigation}) => {
               animatedStyle,
               tablet ? {marginTop: heightPercent(5)} : undefined,
             ]}>
+            {!visible ? (
+              <TouchableOpacity
+                onPress={() => setVisible(true)}
+                style={styles.recoring}>
+                <Image
+                  style={styles.img}
+                  source={require('../../assets/icon_image/recrding.png')}
+                />
+              </TouchableOpacity>
+            ) : null}
             <Image
               resizeMode="stretch"
               style={styles.img}
@@ -137,37 +220,39 @@ const Detail: React.FC<props> = ({navigation}) => {
             />
           </Animated.View>
         </PanGestureHandler>
-        <View style={styles.btnContainer}>
-          <TouchableOpacity
-            onPress={() => changeImageWithAnimation('prev')}
-            style={styles.btn}>
-            <Image
-              style={styles.img}
-              resizeMode="stretch"
-              source={require('../../assets/icon_image/btnPrevious.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              palySound(currentIndex, 'reapet');
-            }}
-            style={styles.btn}>
-            <Image
-              resizeMode="contain"
-              style={[styles.img, {height: '100%'}]}
-              source={require('../../assets/icon_image/repeat_sound.png')}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => changeImageWithAnimation('next')}
-            style={styles.btn}>
-            <Image
-              style={styles.img}
-              resizeMode="stretch"
-              source={require('../../assets/icon_image/btnNext.png')}
-            />
-          </TouchableOpacity>
-        </View>
+        {!visible ? (
+          <View style={styles.btnContainer}>
+            <TouchableOpacity
+              onPress={() => changeImageWithAnimation('prev')}
+              style={styles.btn}>
+              <Image
+                style={styles.img}
+                resizeMode="stretch"
+                source={require('../../assets/icon_image/btnPrevious.png')}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                palySound(currentIndex, 'reapet');
+              }}
+              style={styles.btn}>
+              <Image
+                resizeMode="contain"
+                style={[styles.img, {height: '100%'}]}
+                source={require('../../assets/icon_image/repeat_sound.png')}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => changeImageWithAnimation('next')}
+              style={styles.btn}>
+              <Image
+                style={styles.img}
+                resizeMode="stretch"
+                source={require('../../assets/icon_image/btnNext.png')}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : null}
       </ImageBackground>
     </Drawer>
   );

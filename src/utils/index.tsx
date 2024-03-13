@@ -1,6 +1,10 @@
 import {Alert, Platform} from 'react-native';
 import RNFS from 'react-native-fs';
-import {AdEventType, InterstitialAd} from 'react-native-google-mobile-ads';
+import {
+  AdEventType,
+  InterstitialAd,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
 var SQLite = require('react-native-sqlite-storage');
 const db = SQLite.openDatabase({
@@ -199,11 +203,15 @@ export default class utils {
   };
 
   static player = async (track: AddTrack) => {
-    const isSetup = await this.setupPlayer();
-    if (isSetup) {
-      await TrackPlayer.reset();
-      await TrackPlayer.add(track);
-      await TrackPlayer.play();
+    try {
+      const isSetup = await this.setupPlayer();
+      if (isSetup) {
+        await TrackPlayer.reset();
+        await TrackPlayer.add(track);
+        await TrackPlayer.play();
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
   static resetPlayer = async () => {
@@ -276,8 +284,8 @@ export default class utils {
   static addIts = {
     ...Platform.select({
       android: {
-        BANNER: 'ca-app-pub-3339897183017333/9872014788',
-        INTERSTITIAL: 'ca-app-pub-3339897183017333/9858449153',
+        BANNER: TestIds.BANNER,
+        INTERSTITIAL: TestIds.INTERSTITIAL,
       },
       ios: {
         BANNER: 'ca-app-pub-3339897183017333/3046751980',
