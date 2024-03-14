@@ -5,8 +5,9 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  Animated as Anim2,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {navigationParams} from '../../navigation';
 import styles from './styles';
@@ -18,7 +19,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux/store';
 import utils from '../../utils';
 import {isTablet} from 'react-native-device-info';
@@ -28,24 +29,28 @@ import {Drawer} from 'react-native-drawer-layout';
 import DrawerContent from '../../components/DrawerContent';
 import Modals from '../../components/Modal';
 import AudioRecorderPlayer, {
-  AVEncoderAudioQualityIOSType,
-  AVEncodingOption,
   AudioEncoderAndroidType,
   AudioSourceAndroidType,
+  AVEncoderAudioQualityIOSType,
+  AVEncodingOption,
 } from 'react-native-audio-recorder-player';
-import RNFS from 'react-native-fs';
 
+import RNFS from 'react-native-fs';
+import {FetchDataParams, fetchData} from '../../redux/reducres';
+import {categoreis} from '../../types/Genius/db';
+const audioRecorderPlayer = new AudioRecorderPlayer();
 type props = StackScreenProps<navigationParams, 'Detail_Screen'>;
 const Detail: React.FC<props> = ({navigation}) => {
-  const audioRecorderPlayer = new AudioRecorderPlayer();
+  const dispatch = useDispatch<any>();
+  const [slideAnim] = useState(new Anim2.Value(0));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [recoring, setRecording] = useState(false);
   const {data} = useSelector((state: rootState) => state.data);
   const translationX = useSharedValue(0);
   const [count, setCount] = useState(0);
-  const [adio, setAdio] = useState({
+  const [recording, setRecordings] = useState({
     recordSecs: 0,
-    recordTime: '00:00',
+    recordTime: '00.00',
   });
   const changeImageWithAnimation = async (direction: string) => {
     setCount(pre => (direction == 'next' ? pre + 1 : pre - 1));
@@ -102,8 +107,61 @@ const Detail: React.FC<props> = ({navigation}) => {
     );
   };
   const [visible, setVisible] = useState(false);
-  const onRecord = async () => {
-    const path = 'hello.m4a';
+  // const onRecord = async () => {
+
+  //   const path = `${RNFS.DocumentDirectoryPath}/${data[
+  //     currentIndex
+  //   ].word.toLocaleLowerCase()}.mp4`;
+
+  //   const audioSet = {
+  //     AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+  //     AudioSourceAndroid: AudioSourceAndroidType.MIC,
+  //     AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+  //     AVNumberOfChannelsKeyIOS: 2,
+  //     AVFormatIDKeyIOS: AVEncodingOption.wav,
+  //   };
+  //   try {
+  //     if (recoring == false) {
+  //       setRecording(true);
+  //       // Path to save the recorded audio
+  //       const result = await audioRecorderPlayer.startRecorder();
+  //       console.log(result);
+  //     } else {
+  //       setRecording(false);
+  //       const result = await audioRecorderPlayer.stopRecorder();
+  //       audioRecorderPlayer.removePlayBackListener();
+  //       console.log('Recording stopped, file saved at:', result);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error during recording:', error);
+  //   }
+  // };
+  // console.log(data[currentIndex].record_sound);
+  const [isTrashVisible, setTrashVisible] = useState(false);
+  const toggleTrashVisibility = () => {
+    const newValue = isTrashVisible ? 0 : heightPercent(10);
+
+    if (isTrashVisible) {
+      Anim2.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        setTrashVisible(!isTrashVisible);
+        slideAnim.setValue(0);
+      });
+    } else {
+      Anim2.timing(slideAnim, {
+        toValue: 100,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        setTrashVisible(!isTrashVisible);
+      });
+    }
+  };
+
+  const onStartRecord = async () => {
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
       AudioSourceAndroid: AudioSourceAndroidType.MIC,
@@ -111,47 +169,91 @@ const Detail: React.FC<props> = ({navigation}) => {
       AVNumberOfChannelsKeyIOS: 2,
       AVFormatIDKeyIOS: AVEncodingOption.wav,
     };
-    try {
-      if (!recoring) {
-        setRecording(true);
-        // Path to save the recorded audio
-        const result = await audioRecorderPlayer.startRecorder(path, audioSet);
-        console.log(result);
-        audioRecorderPlayer.addPlayBackListener(e => {
-          setAdio(prev => ({
-            recordSecs: e.currentPosition,
-            recordTime: audioRecorderPlayer.mmssss(
-              Math.floor(e.currentPosition),
-            ),
-          }));
-        });
-      } else {
-        setRecording(false);
-        const result = await audioRecorderPlayer.stopRecorder();
-        audioRecorderPlayer.removePlayBackListener();
-        console.log('Recording stopped, file saved at:', result);
-      }
-    } catch (error) {
-      console.error('Error during recording:', error);
-    }
+    const path = `${RNFS.DocumentDirectoryPath}/${data[
+      currentIndex
+    ].word.toLocaleLowerCase()}.mp4`;
+
+    const result = await audioRecorderPlayer.startRecorder(path, audioSet);
+    audioRecorderPlayer.addRecordBackListener(e => {
+      setRecordings({
+        recordSecs: e.currentPosition,
+        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+      });
+      return;
+    });
+    utils.updateRecord('yes', data[currentIndex].ID);
+    console.log(result);
+  };
+  const onStopRecord = async () => {
+    console.log('notrecording');
+    const result = await audioRecorderPlayer.stopRecorder();
+    audioRecorderPlayer.removeRecordBackListener();
+
+    console.log(result);
   };
   const onPlay = async () => {
-    const path = 'recorded_audio.m4a';
-    // const track = {
-    //   url: path,
-    //   title: 'name.file',
-    //   artist: 'eFlashApps',
-    //   album: 'eFlashApps',
-    //   genre: 'welcome to geniues baby flash cards',
-    //   date: new Date().toDateString(),
-    //   artwork: path,
-    //   duration: 4,
-    // };
-    // console.log(path);
+    if (recording) {
+      const result = await audioRecorderPlayer.stopRecorder();
+    }
+    const path = `${RNFS.DocumentDirectoryPath}/${data[
+      currentIndex
+    ].word.toLocaleLowerCase()}.mp4`;
+    const track = {
+      url: path,
+      title: 'name.file',
+      artist: 'eFlashApps',
+      album: 'eFlashApps',
+      genre: 'welcome to geniues baby flash cards',
+      date: new Date().toDateString(),
+      artwork: path,
+      duration: 4,
+    };
 
-    // await utils.player(track);
-    audioRecorderPlayer.startPlayer(path);
-    audioRecorderPlayer.setVolume(100);
+    await utils.player(track);
+    // audioRecorderPlayer.startPlayer(path);
+    // audioRecorderPlayer.setVolume(100);
+  };
+  // useEffect(() => {
+  //   audioRecorderPlayer.addRecordBackListener(e => {
+  //     setRecordings({
+  //       recordSecs: e.currentPosition,
+  //       recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+  //     });
+  //     return;
+  //   });
+  //   return;
+  // }, [audioRecorderPlayer]);
+  const toggleRecorder = async (bool: boolean) => {
+    if (bool) {
+      await onStartRecord();
+    } else {
+      await onStopRecord();
+    }
+    setRecording(bool);
+  };
+  const deleteRecorded = async () => {
+    const path = `${RNFS.DocumentDirectoryPath}/${data[
+      currentIndex
+    ].word.toLocaleLowerCase()}.mp4`;
+    const res = await RNFS.exists(path);
+    console.log(res);
+
+    if (res) {
+      await RNFS.unlink(path);
+      await utils.updateRecord('', data[currentIndex].ID);
+      handleOnCategory();
+    }
+  };
+  const handleOnCategory = async () => {
+    const fetchdata: FetchDataParams = {
+      tableName: 'tbl_items',
+      category: data[currentIndex].category.toLocaleUpperCase(),
+      random: false,
+      dataType: 'data',
+      length: 0,
+      navigation: null,
+    };
+    dispatch(fetchData(fetchdata));
   };
 
   return (
@@ -167,8 +269,13 @@ const Detail: React.FC<props> = ({navigation}) => {
         source={require('../../assets/Bg_image/background.png')}>
         <Header ishome={false} onRightPress={() => setOpen(prev => !prev)} />
         <Modals
-          onRecord={() => onRecord()}
-          onClose={() => setVisible(false)}
+          onRecord={() => {
+            toggleRecorder(!recoring);
+          }}
+          onClose={() => {
+            handleOnCategory();
+            setVisible(false);
+          }}
           onPlay={() => onPlay()}
           visible={visible}
           recoring={recoring}
@@ -200,14 +307,49 @@ const Detail: React.FC<props> = ({navigation}) => {
               tablet ? {marginTop: heightPercent(5)} : undefined,
             ]}>
             {!visible ? (
-              <TouchableOpacity
-                onPress={() => setVisible(true)}
-                style={styles.recoring}>
-                <Image
-                  style={styles.img}
-                  source={require('../../assets/icon_image/recrding.png')}
-                />
-              </TouchableOpacity>
+              <View style={styles.RecordContainer}>
+                <TouchableOpacity
+                  onPress={() => setVisible(true)}
+                  style={styles.recoring}>
+                  <Image
+                    resizeMode="contain"
+                    style={styles.img}
+                    source={require('../../assets/icon_image/recrding.png')}
+                  />
+                </TouchableOpacity>
+                {data[currentIndex]?.record_sound == 'yes' ? (
+                  <>
+                    <TouchableOpacity
+                      onPress={toggleTrashVisibility}
+                      style={styles.recoring2}>
+                      <Image
+                        resizeMode="contain"
+                        style={styles.img}
+                        source={require('../../assets/icon_image/main_talk_btn1.png')}
+                      />
+                    </TouchableOpacity>
+                    {isTrashVisible && (
+                      <Anim2.View
+                        style={[
+                          styles.trash,
+                          {transform: [{translateY: slideAnim}]},
+                        ]}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            deleteRecorded();
+                          }}
+                          style={{height: '100%', width: '100%'}}>
+                          <Image
+                            resizeMode="contain"
+                            style={styles.img}
+                            source={require('../../assets/icon_image/trashButton.png')}
+                          />
+                        </TouchableOpacity>
+                      </Anim2.View>
+                    )}
+                  </>
+                ) : null}
+              </View>
             ) : null}
             <Image
               resizeMode="stretch"

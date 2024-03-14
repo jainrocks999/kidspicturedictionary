@@ -1,7 +1,6 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {categoreis, db_data, setting_type} from '../../types/Genius/db';
+import {db_data, setting_type} from '../../types/Genius/db';
 import utils from '../../utils';
-import {Alert} from 'react-native';
 import {rootNaviation} from '../../types/Genius/action';
 
 export interface FetchDataParams {

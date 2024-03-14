@@ -45,9 +45,17 @@ const DrawerContent: React.FC<props> = ({data, onPress}) => {
                       uri: `${utils.path}${item.image.toLocaleLowerCase()}`,
                     }}
                   />
-                  <Text style={[styles.index, {marginLeft: '7%'}]}>
+                  <Text
+                    style={[styles.index, {marginLeft: '7%', width: '35%'}]}>
                     {item.word}
                   </Text>
+                  {item.record_sound == 'yes' ? (
+                    <Image
+                      resizeMode="contain"
+                      style={styles.man}
+                      source={require('../../assets/icon_image/main_talk_btn1.png')}
+                    />
+                  ) : null}
                 </TouchableOpacity>
               </View>
             );
@@ -101,5 +109,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
     right: wp(2),
     top: hp(2),
+  },
+  man: {
+    height: hp(8),
+    width: hp(8),
   },
 });

@@ -1,4 +1,4 @@
-import Home from '../../screens/Home';
+import Home from '../../screens/Home/index2';
 import Detail from '../../screens/ShowCatagory';
 import Splash from '../../screens/Splash';
 import SplashII from '../../screens/SplashII';

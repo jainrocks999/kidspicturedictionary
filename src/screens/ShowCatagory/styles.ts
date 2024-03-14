@@ -40,11 +40,27 @@ export default StyleSheet.create({
     backgroundColor: '#06203b',
   },
   recoring: {
-    height: hp(9),
-    width: hp(9),
+    height: hp(7.5),
+    width: hp(7.5),
+  },
+  recoring2: {
+    height: hp(12),
+    width: hp(12),
+  },
+  RecordContainer: {
     position: 'absolute',
     zIndex: 1,
-    left: wp(2),
-    top: hp(2),
+    flexDirection: 'row',
+    top: hp(1),
+    width: '95%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  trash: {
+    // borderEndWidth: 5,
+    height: hp(8),
+    width: hp(8),
+    position: 'absolute',
+    right: wp(4),
   },
 });

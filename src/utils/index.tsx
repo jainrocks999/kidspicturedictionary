@@ -16,7 +16,7 @@ import TrackPlayer, {
   Capability,
 } from 'react-native-track-player';
 import type {AddTrack} from 'react-native-track-player';
-import {db_data, setting_type} from '../types/Genius/db';
+import {db_data, db_item, setting_type} from '../types/Genius/db';
 import {pngFiles} from './fileNames';
 
 export default class utils {
@@ -321,6 +321,20 @@ export default class utils {
           'GameLevel=?,RandomOrder=?,Swipe=?' +
           ' WHERE _id=1',
         [item.Voice, item.Game, item.GameLevel, item.RandomOrder, item.Swipe],
+        (tx: any, results: any) => {
+          console.log('Query completed');
+        },
+        (err: any) => {
+          console.log(err);
+        },
+      );
+    });
+  };
+  static updateRecord = (name: string, id: number) => {
+    db.transaction((tx: any) => {
+      tx.executeSql(
+        'UPDATE  tbl_items SET record_sound=? WHERE ID=?',
+        [name, id],
         (tx: any, results: any) => {
           console.log('Query completed');
         },

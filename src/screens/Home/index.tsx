@@ -1,43 +1,116 @@
-import {View, Text, ImageBackground, StatusBar, Alert} from 'react-native';
-import React from 'react';
-import {StackScreenProps} from '@react-navigation/stack';
-import {navigationParams} from '../../navigation';
-import styles from './styles';
-import utils from '../../utils';
-import Header from '../../components/Header';
-import CategoryList from '../../components/List_home';
-import {categoreis} from '../../types/Genius/db';
-import {useDispatch, useSelector} from 'react-redux';
-import {FetchDataParams, fetchData} from '../../redux/reducres';
-import {rootState} from '../../redux/store';
-import {rootNaviation} from '../../types/Genius/action';
+import {View, Text, TouchableOpacity, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import {heightPercent, widthPrecent} from '../../utils/responsive';
+const App = () => {
+  const audioRecorderPlayer = new AudioRecorderPlayer();
+  const [recording, setRecording] = useState({
+    recordSecs: 0,
+    recordTime: '00.00',
+  });
 
-type props = StackScreenProps<navigationParams, 'Home_Screen'>;
-const Home: React.FC<props> = ({navigation}) => {
-  const dispatch = useDispatch<any>();
-  const data = useSelector((state: rootState) => state.data.data);
+  const onStartRecord = async () => {
+    const result = await audioRecorderPlayer.startRecorder();
 
-  const handleOnCategory = async (item: categoreis) => {
-    const fetchdata: FetchDataParams = {
-      tableName: 'tbl_items',
-      category: item.cate_name,
-      random: false,
-      dataType: 'data',
-      length: 0,
-      navigation,
-    };
-    dispatch(fetchData(fetchdata));
+    console.log(result);
   };
+  const onStopRecord = async () => {
+    // Alert.alert('called');
+    const result = await audioRecorderPlayer.stopRecorder();
+
+    setRecording(prev => ({recordSecs: 0, recordTime: '00:00'}));
+    console.log(result);
+  };
+  const onStartPlay = async () => {
+    const msg = await audioRecorderPlayer.startPlayer();
+    console.log(msg);
+    audioRecorderPlayer.addPlayBackListener(e => {
+      return;
+    });
+  };
+  useEffect(() => {
+    audioRecorderPlayer.addRecordBackListener(e => {
+      setRecording({
+        recordSecs: e.currentPosition,
+        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
+      });
+      return;
+    });
+    return audioRecorderPlayer.removeRecordBackListener();
+  }, [audioRecorderPlayer]);
+  const onStopPlay = async () => {
+    audioRecorderPlayer.stopPlayer();
+  };
+
   return (
-    <ImageBackground
-      resizeMode="stretch"
-      style={styles.container}
-      source={require('../../assets/Bg_image/background.png')}>
-      <StatusBar backgroundColor={utils.COLORS.yellow} />
-      <Header onRightPress={() => null} ishome />
-      <CategoryList data={utils.Categoreis} onPress={handleOnCategory} />
-    </ImageBackground>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <TouchableOpacity
+        onPress={() => {
+          onStartRecord();
+        }}
+        style={{
+          height: heightPercent(6),
+          width: widthPrecent(35),
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'skyblue',
+          borderRadius: widthPrecent(1),
+        }}>
+        <Text>start Recording</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          onStopRecord();
+        }}
+        style={{
+          height: heightPercent(6),
+          width: widthPrecent(35),
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'skyblue',
+          borderRadius: widthPrecent(1),
+          marginTop: heightPercent(2),
+        }}>
+        <Text>Stop recording</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          onStartPlay();
+        }}
+        style={{
+          height: heightPercent(6),
+          width: widthPrecent(35),
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'skyblue',
+          borderRadius: widthPrecent(1),
+          marginTop: heightPercent(2),
+        }}>
+        <Text>play</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          onStopPlay();
+        }}
+        style={{
+          height: heightPercent(6),
+          width: widthPrecent(35),
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'skyblue',
+          borderRadius: widthPrecent(1),
+          marginTop: heightPercent(2),
+        }}>
+        <Text>stop</Text>
+      </TouchableOpacity>
+      <Text style={{marginTop: 5}}>{recording.recordTime}</Text>
+    </View>
   );
 };
 
-export default Home;
+export default App;
