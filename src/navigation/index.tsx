@@ -25,7 +25,7 @@ const Navigation = () => {
       onStateChange={state => {
         const name = state?.routes[state.index].name;
         dispatch({
-          type: 'helper/setPageChange',
+          type: 'picDict/setPageChange',
           payload: {prev: screens.current, current: name},
         });
       }}>

@@ -45,13 +45,18 @@ const Detail: React.FC<props> = ({navigation}) => {
   const [slideAnim] = useState(new Anim2.Value(0));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [recoring, setRecording] = useState(false);
-  const {data} = useSelector((state: rootState) => state.data);
+  const [playing, setPlaying] = useState(false);
+  const {data, setting, currentCat} = useSelector(
+    (state: rootState) => state.data,
+  );
   const translationX = useSharedValue(0);
   const [count, setCount] = useState(0);
   const [recording, setRecordings] = useState({
     recordSecs: 0,
     recordTime: '00.00',
   });
+  const [progress, setProgress] = useState(0);
+  const [playprogress, setplayProgress] = useState(0);
   const changeImageWithAnimation = async (direction: string) => {
     setCount(pre => (direction == 'next' ? pre + 1 : pre - 1));
     const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
@@ -62,11 +67,13 @@ const Detail: React.FC<props> = ({navigation}) => {
         duration: 300,
         easing: Easing.ease,
       });
-      palySound(newIndex, '');
+      setting.Voice == 'Yes' ? palySound(newIndex, '') : null;
     } else {
+      setCurrentIndex(prev => prev + 1);
       await TrackPlayer.reset();
+
       // utils.showAdd();
-      // navigation.replace('Next_Screen');
+      navigation.replace('Next_Screen');
     }
   };
   const tablet = isTablet();
@@ -107,36 +114,7 @@ const Detail: React.FC<props> = ({navigation}) => {
     );
   };
   const [visible, setVisible] = useState(false);
-  // const onRecord = async () => {
 
-  //   const path = `${RNFS.DocumentDirectoryPath}/${data[
-  //     currentIndex
-  //   ].word.toLocaleLowerCase()}.mp4`;
-
-  //   const audioSet = {
-  //     AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-  //     AudioSourceAndroid: AudioSourceAndroidType.MIC,
-  //     AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-  //     AVNumberOfChannelsKeyIOS: 2,
-  //     AVFormatIDKeyIOS: AVEncodingOption.wav,
-  //   };
-  //   try {
-  //     if (recoring == false) {
-  //       setRecording(true);
-  //       // Path to save the recorded audio
-  //       const result = await audioRecorderPlayer.startRecorder();
-  //       console.log(result);
-  //     } else {
-  //       setRecording(false);
-  //       const result = await audioRecorderPlayer.stopRecorder();
-  //       audioRecorderPlayer.removePlayBackListener();
-  //       console.log('Recording stopped, file saved at:', result);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error during recording:', error);
-  //   }
-  // };
-  // console.log(data[currentIndex].record_sound);
   const [isTrashVisible, setTrashVisible] = useState(false);
   const toggleTrashVisibility = () => {
     const newValue = isTrashVisible ? 0 : heightPercent(10);
@@ -173,56 +151,92 @@ const Detail: React.FC<props> = ({navigation}) => {
       currentIndex
     ].word.toLocaleLowerCase()}.mp4`;
 
+    if (playing) {
+      onStopPlay();
+    }
     const result = await audioRecorderPlayer.startRecorder(path, audioSet);
     audioRecorderPlayer.addRecordBackListener(e => {
-      setRecordings({
-        recordSecs: e.currentPosition,
-        recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-      });
+      let recordTime = audioRecorderPlayer.mmssss(
+        Math.floor(e.currentPosition),
+      );
+
+      let progress = calculatePercentageFromTimeString(recordTime, 30);
+      setProgress(progress);
+
       return;
     });
     utils.updateRecord('yes', data[currentIndex].ID);
-    console.log(result);
   };
-  const onStopRecord = async () => {
-    console.log('notrecording');
-    const result = await audioRecorderPlayer.stopRecorder();
-    audioRecorderPlayer.removeRecordBackListener();
+  function calculatePercentageFromTimeString(
+    timeString: string,
+    totalTime: number | string,
+  ) {
+    let time: number = 0;
+    const [minutes, seconds, milliseconds] = timeString.split(':').map(Number);
+    if (typeof totalTime == 'string') {
+      const [minuts2, seconds2, milliseconds2] = totalTime
+        .split(':')
+        .map(Number);
+      time = minuts2 * 60 + seconds2 + milliseconds2 / 1000;
+    } else {
+      time = totalTime;
+    }
 
-    console.log(result);
+    const currentTime = minutes * 60 + seconds + milliseconds / 1000; // Convert time to seconds
+
+    return calculatePercentage(currentTime, time);
+  }
+  function calculatePercentage(currentTime: number, totalTime: number) {
+    if (currentTime < 0 || totalTime <= 0) {
+      return 0;
+    }
+
+    if (currentTime >= totalTime) {
+      onStopPlay();
+      setplayProgress(0);
+      onStopRecord();
+      return 1;
+    }
+
+    return ((currentTime / totalTime) * 100) / 100;
+  }
+  const onStopRecord = async () => {
+    const result = await audioRecorderPlayer.stopRecorder();
+    await audioRecorderPlayer.removeRecordBackListener();
+    setProgress(0);
+    setRecording(false);
   };
   const onPlay = async () => {
     if (recording) {
-      const result = await audioRecorderPlayer.stopRecorder();
+      onStopRecord();
     }
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
     ].word.toLocaleLowerCase()}.mp4`;
-    const track = {
-      url: path,
-      title: 'name.file',
-      artist: 'eFlashApps',
-      album: 'eFlashApps',
-      genre: 'welcome to geniues baby flash cards',
-      date: new Date().toDateString(),
-      artwork: path,
-      duration: 4,
-    };
+    setPlaying(prev => !prev);
+    const resul = await audioRecorderPlayer.startPlayer(path);
+    console.log(resul);
 
-    await utils.player(track);
-    // audioRecorderPlayer.startPlayer(path);
-    // audioRecorderPlayer.setVolume(100);
+    audioRecorderPlayer.addPlayBackListener(e => {
+      let recordTime = audioRecorderPlayer.mmssss(
+        Math.floor(e.currentPosition),
+      );
+      let recordTime2 = audioRecorderPlayer.mmssss(Math.floor(e.duration));
+      const times = calculatePercentageFromTimeString(recordTime, recordTime2);
+      setplayProgress(times);
+    });
   };
-  // useEffect(() => {
-  //   audioRecorderPlayer.addRecordBackListener(e => {
-  //     setRecordings({
-  //       recordSecs: e.currentPosition,
-  //       recordTime: audioRecorderPlayer.mmssss(Math.floor(e.currentPosition)),
-  //     });
-  //     return;
-  //   });
-  //   return;
-  // }, [audioRecorderPlayer]);
+  const onStopPlay = async () => {
+    await audioRecorderPlayer.stopPlayer();
+    audioRecorderPlayer.removePlayBackListener();
+    setPlaying(false);
+    setplayProgress(0);
+  };
+  useEffect(() => {
+    data.length > 0 && setting.Voice == 'Yes'
+      ? palySound(currentIndex, '')
+      : null;
+  }, [data]);
   const toggleRecorder = async (bool: boolean) => {
     if (bool) {
       await onStartRecord();
@@ -241,20 +255,22 @@ const Detail: React.FC<props> = ({navigation}) => {
     if (res) {
       await RNFS.unlink(path);
       await utils.updateRecord('', data[currentIndex].ID);
-      handleOnCategory();
+      // handleOnCategory();
     }
   };
   const handleOnCategory = async () => {
     const fetchdata: FetchDataParams = {
       tableName: 'tbl_items',
       category: data[currentIndex].category.toLocaleUpperCase(),
-      random: false,
+      random: setting.Random == 'Yes' ? true : false,
       dataType: 'data',
       length: 0,
       navigation: null,
+      currentCat,
     };
     dispatch(fetchData(fetchdata));
   };
+  console.log(data[currentIndex]);
 
   return (
     <Drawer
@@ -267,18 +283,32 @@ const Detail: React.FC<props> = ({navigation}) => {
         resizeMode="stretch"
         style={styles.container}
         source={require('../../assets/Bg_image/background.png')}>
-        <Header ishome={false} onRightPress={() => setOpen(prev => !prev)} />
+        <Header
+          ishome={false}
+          title={{
+            title1: data[currentIndex]?.word,
+            title2: data[currentIndex]?.sentence,
+          }}
+          onLeftPress={async () => {
+            await TrackPlayer.reset();
+            navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+          }}
+          onRightPress={() => setOpen(prev => !prev)}
+        />
         <Modals
           onRecord={() => {
             toggleRecorder(!recoring);
           }}
+          progress={progress}
+          plaprogess={playprogress}
           onClose={() => {
-            handleOnCategory();
+            // handleOnCategory();
             setVisible(false);
           }}
           onPlay={() => onPlay()}
           visible={visible}
           recoring={recoring}
+          isplaying={playing}
         />
         <PanGestureHandler
           onGestureEvent={({nativeEvent}) => {
@@ -287,12 +317,16 @@ const Detail: React.FC<props> = ({navigation}) => {
           onHandlerStateChange={({nativeEvent}) => {
             if (nativeEvent.state === State.END) {
               if (nativeEvent.translationX > 50 && currentIndex > 0) {
-                changeImageWithAnimation('prev');
+                setting.Swipe == 'Yes'
+                  ? changeImageWithAnimation('prev')
+                  : null;
               } else if (
                 nativeEvent.translationX < -50 &&
                 currentIndex < data.length
               ) {
-                changeImageWithAnimation('next');
+                setting.Swipe == 'Yes'
+                  ? changeImageWithAnimation('next')
+                  : null;
               }
               translationX.value = withTiming(0, {
                 duration: 300,
@@ -362,16 +396,19 @@ const Detail: React.FC<props> = ({navigation}) => {
             />
           </Animated.View>
         </PanGestureHandler>
-        {!visible ? (
+        {!visible && setting.Swipe !== 'Yes' ? (
           <View style={styles.btnContainer}>
             <TouchableOpacity
               onPress={() => changeImageWithAnimation('prev')}
+              disabled={currentIndex <= 0}
               style={styles.btn}>
-              <Image
-                style={styles.img}
-                resizeMode="stretch"
-                source={require('../../assets/icon_image/btnPrevious.png')}
-              />
+              {currentIndex > 0 ? (
+                <Image
+                  style={styles.img}
+                  resizeMode="stretch"
+                  source={require('../../assets/icon_image/btnPrevious.png')}
+                />
+              ) : null}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -385,6 +422,7 @@ const Detail: React.FC<props> = ({navigation}) => {
               />
             </TouchableOpacity>
             <TouchableOpacity
+              disabled={currentIndex == data.length}
               onPress={() => changeImageWithAnimation('next')}
               style={styles.btn}>
               <Image

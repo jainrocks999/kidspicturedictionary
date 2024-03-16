@@ -1,5 +1,5 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {db_data, setting_type} from '../../types/Genius/db';
+import {db_data, seeting_db, setting_type} from '../../types/Genius/db';
 import utils from '../../utils';
 import {rootNaviation} from '../../types/Genius/action';
 
@@ -10,6 +10,7 @@ export interface FetchDataParams {
   length: number;
   dataType: 'data' | 'setting';
   navigation: rootNaviation | null;
+  currentCat: string;
 }
 
 export const fetchData = createAsyncThunk(
@@ -21,10 +22,16 @@ export const fetchData = createAsyncThunk(
     length,
     dataType,
     navigation,
+    currentCat,
   }: FetchDataParams) => {
-    const data = await utils.db(tableName, category, random, length);
+    const data: db_data | setting_type = await utils.db(
+      tableName,
+      category,
+      random,
+      length,
+    );
     navigation?.navigate('Detail_Screen');
-    return {[dataType]: data};
+    return {[dataType]: dataType == 'data' ? data : data[0], currentCat};
   },
 );
 
@@ -35,7 +42,8 @@ interface PicState {
     current: string;
   };
   data: db_data;
-  setting: setting_type;
+  setting: seeting_db;
+  currentCat: string;
 }
 
 const initialState: PicState = {
@@ -45,7 +53,14 @@ const initialState: PicState = {
     current: '',
   },
   data: [],
-  setting: [],
+  setting: {
+    Bgsound: '',
+    id: 0,
+    Random: '',
+    Swipe: '',
+    Voice: '',
+  },
+  currentCat: '',
 };
 
 const picSlice = createSlice({
@@ -54,6 +69,12 @@ const picSlice = createSlice({
   reducers: {
     baby_flash_them: (state, action) => {
       return {...state, default_sound: action.payload};
+    },
+    update_setting: (state, action) => {
+      return {...state, setting: action.payload};
+    },
+    setPageChange: (state, action) => {
+      return {...state, screens: action.payload};
     },
   },
   extraReducers: builder => {

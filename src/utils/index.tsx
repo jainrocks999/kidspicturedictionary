@@ -16,7 +16,7 @@ import TrackPlayer, {
   Capability,
 } from 'react-native-track-player';
 import type {AddTrack} from 'react-native-track-player';
-import {db_data, db_item, setting_type} from '../types/Genius/db';
+import {db_data, db_item, seeting_db} from '../types/Genius/db';
 import {pngFiles} from './fileNames';
 
 export default class utils {
@@ -314,13 +314,13 @@ export default class utils {
     return unsubscribe;
   };
 
-  static updateSettings = (item: setting_type[0]) => {
+  static updateSettings = (item: seeting_db) => {
     db.transaction((tx: any) => {
       tx.executeSql(
-        'UPDATE  tbl_settings set Voice=?,Game=?,' +
-          'GameLevel=?,RandomOrder=?,Swipe=?' +
-          ' WHERE _id=1',
-        [item.Voice, item.Game, item.GameLevel, item.RandomOrder, item.Swipe],
+        'UPDATE  tbl_settings set Voice=?,Random=?,' +
+          'Bgsound=?,Swipe=?' +
+          ' WHERE id=1',
+        [item.Voice, item.Random, item.Bgsound, item.Swipe],
         (tx: any, results: any) => {
           console.log('Query completed');
         },

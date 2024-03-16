@@ -11,14 +11,13 @@ export interface db_item {
   image: string;
   category: string;
 }
-export type   setting_type = seeting_db[];
+export type setting_type = seeting_db[];
 
 export interface seeting_db {
-  Swipe: string;
-  RandomOrder: string;
-  Game: string;
-  Voice: string;
-  GameLevel: string;
-  _id: number;
+  Swipe: string | 'Yes' | 'No';
+  Random: string | 'Yes' | 'No';
+  Voice: string | 'Yes' | 'No';
+  Bgsound: string | 'Yes' | 'No';
+  id: number;
 }
 export type categoreis = (typeof utils.Categoreis)[0];

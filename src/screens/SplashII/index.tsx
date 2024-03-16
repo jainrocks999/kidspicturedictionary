@@ -11,15 +11,34 @@ import React, {useEffect} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {navigationParams} from '../../navigation';
 import utils from '../../utils';
+import {FetchDataParams, fetchData} from '../../redux/reducres';
+import {useDispatch} from 'react-redux';
 type props = StackScreenProps<navigationParams, 'SPlash_ScreenII'>;
 const SplashII: React.FC<props> = ({navigation}) => {
+  const dispatch = useDispatch<any>();
   const color = utils.COLORS;
   useEffect(() => {
     setTimeout(() => {
-      requestPermission();
-      navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+      goTo();
     }, 2000);
   }, []);
+  const goTo = () => {
+    requestPermission();
+    getSetting();
+    navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+  };
+  const getSetting = () => {
+    const fetchdata: FetchDataParams = {
+      tableName: 'tbl_settings',
+      category: null,
+      random: false,
+      dataType: 'setting',
+      length: 0,
+      navigation: null,
+      currentCat: '',
+    };
+    dispatch(fetchData(fetchdata));
+  };
 
   const requestPermission = async () => {
     if (Platform.OS === 'android') {

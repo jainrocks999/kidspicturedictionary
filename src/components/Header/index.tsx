@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {StyleSheet, TouchableOpacity, View, Image, Text} from 'react-native';
 import {heightPercent as hp, widthPrecent as wp} from '../../utils/responsive';
 import utils from '../../utils';
@@ -9,16 +9,29 @@ import {StackNavigationProp} from '@react-navigation/stack';
 type props = {
   ishome: boolean;
   onRightPress: () => void;
+  title: {
+    title1: string;
+    title2: string;
+  };
+  onLeftPress: () => void;
 };
-const Header: React.FC<props> = ({ishome, onRightPress}) => {
-  const navigation = useNavigation<StackNavigationProp<navigationParams>>();
+const Header: React.FC<props> = ({
+  ishome,
+  onRightPress,
+  title,
+  onLeftPress,
+}) => {
+  const getArray = () => {
+    const sentence = title.title2?.split(' ');
+    return sentence;
+  };
 
   return (
     <View style={[styles.container]}>
       <View style={styles.row}>
         <TouchableOpacity
           disabled={ishome}
-          onPress={() => {}}
+          onPress={onLeftPress}
           style={styles.iconContainer}>
           {!ishome ? (
             <Image
@@ -27,7 +40,29 @@ const Header: React.FC<props> = ({ishome, onRightPress}) => {
             />
           ) : null}
         </TouchableOpacity>
-
+        {title.title1 != '' ? (
+          <View style={{alignItems: 'center', marginTop: '-1%'}}>
+            <Text style={styles.title}>{title.title1}</Text>
+            <View style={{flexDirection: 'row'}}>
+              {getArray()?.map((item, index) => (
+                <Text
+                  key={index.toString()}
+                  style={[
+                    styles.title,
+                    {
+                      color:
+                        item.toLowerCase() == title.title1.toLowerCase()
+                          ? 'white'
+                          : 'black',
+                      marginLeft: wp(1.3),
+                    },
+                  ]}>
+                  {item}
+                </Text>
+              ))}
+            </View>
+          </View>
+        ) : null}
         <TouchableOpacity onPress={onRightPress} style={styles.iconContainer}>
           <Image
             style={styles.icon}
@@ -79,5 +114,10 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans-SemiBold',
     alignSelf: 'center',
     marginBottom: '5%',
+  },
+  title: {
+    fontSize: wp(4),
+    color: 'white',
+    fontWeight: '800',
   },
 });

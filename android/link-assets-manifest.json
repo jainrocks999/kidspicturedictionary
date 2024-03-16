@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Amiri-BoldItalic.ttf",
+      "sha1": "bd71db7f9aae09655cb5a30623ffe2a27c3015c6"
+    },
+    {
+      "path": "src/assets/fonts/Caveat-Bold.ttf",
+      "sha1": "e71feaec30e28858890521f4116b468c44efec08"
+    }
+  ]
+}
