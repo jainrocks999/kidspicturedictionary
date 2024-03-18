@@ -16,8 +16,7 @@ import TrackPlayer, {
   Capability,
 } from 'react-native-track-player';
 import type {AddTrack} from 'react-native-track-player';
-import {db_data, db_item, seeting_db} from '../types/Genius/db';
-import {pngFiles} from './fileNames';
+import {db_data, seeting_db} from '../types/Genius/db';
 
 export default class utils {
   static Categoreis = [
@@ -79,7 +78,7 @@ export default class utils {
     {
       _id: 11,
       cate_name: 'L',
-      cat_img: require('../assets/cat_image/ik.png'),
+      cat_img: require('../assets/cat_image/il.png'),
     },
     {
       _id: 12,
@@ -151,22 +150,24 @@ export default class utils {
       cate_name: 'Z',
       cat_img: require('../assets/cat_image/iz.png'),
     },
-
-    // {
-    //   _id: 15,
-    //   cate_name: 'More',
-    //   cat_img: require('../assets/cat_image/eflashmore.png'),
-    //   link: 'https://babyflashcards.com/apps.html',
-    // },
-    // {
-    //   _id: 16,
-    //   cate_name: 'Reivew',
-    //   cat_img: require('../assets/cat_image/review_app.png'),
-    //   link: Platform.select({
-    //     android: 'https://play.google.com/store/apps/details?id=com.eFlash2',
-    //     ios: 'https://apps.apple.com/us/app/toddler-flashcards-english-baby-flash-cards-genius/id409571265',
-    //   }),
-    // },
+  ];
+  static promo = [
+    {
+      _id: 15,
+      cate_name: 'More',
+      cat_img: require('../assets/cat_image/ieflash_more.png'),
+      link: 'https://babyflashcards.com/apps.html',
+    },
+    {
+      _id: 16,
+      cate_name: 'Reivew',
+      cat_img: require('../assets/cat_image/ireview.png'),
+      link: Platform.select({
+        android:
+          'https://play.google.com/store/apps/details?id=project.wow.kidspicturedictionary',
+        ios: 'https://apps.apple.com/us/app/toddler-flashcards-english-baby-flash-cards-genius/id409571265',
+      }),
+    },
   ];
 
   static setupPlayer = async () => {
@@ -288,8 +289,8 @@ export default class utils {
         INTERSTITIAL: TestIds.INTERSTITIAL,
       },
       ios: {
-        BANNER: 'ca-app-pub-3339897183017333/3046751980',
-        INTERSTITIAL: 'ca-app-pub-3339897183017333/8197801182',
+        BANNER: TestIds.BANNER,
+        INTERSTITIAL: TestIds.INTERSTITIAL,
       },
     }),
   };
@@ -300,7 +301,7 @@ export default class utils {
     };
 
     const interstitial = InterstitialAd.createForAdRequest(
-      this.addIts.INTERSTITIAL ? this.addIts.INTERSTITIAL : '',
+      this.addIts.INTERSTITIAL ?? '',
       requestOption,
     );
 

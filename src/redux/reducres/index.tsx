@@ -76,6 +76,9 @@ const picSlice = createSlice({
     setPageChange: (state, action) => {
       return {...state, screens: action.payload};
     },
+    setUpdateData: (state, action) => {
+      return {...state, data: action.payload};
+    },
   },
   extraReducers: builder => {
     builder.addCase(fetchData.fulfilled, (state, action) => {

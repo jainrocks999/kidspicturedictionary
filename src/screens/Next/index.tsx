@@ -15,6 +15,7 @@ import utils from '../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux/store';
 import {FetchDataParams, fetchData} from '../../redux/reducres';
+import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 type props = StackScreenProps<navigationParams, 'Next_Screen'>;
 
 const Next: React.FC<props> = ({navigation}) => {
@@ -62,6 +63,9 @@ const Next: React.FC<props> = ({navigation}) => {
   useEffect(() => {
     handOnSound();
   }, [setting, screens]);
+  useEffect(() => {
+    utils.showAdd();
+  }, []);
 
   const handOnSound = async () => {
     const track = {
@@ -86,50 +90,59 @@ const Next: React.FC<props> = ({navigation}) => {
       source={require('../../assets/Bg_image/settingpage.png')}>
       <StatusBar backgroundColor={utils.COLORS.yellow} />
       <SafeAreaView style={{flex: 1}}>
-        <View style={styles.btnContainer}>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
-            <TouchableOpacity
-              onPress={() => {
-                handleOnPress('home');
-              }}
-              style={styles.btn}>
-              <Image
-                style={styles.img}
-                resizeMode="contain"
-                source={require('../../assets/icon_image/home_left.png')}
-              />
-            </TouchableOpacity>
-            <Text style={styles.text}>Home</Text>
-          </View>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
-            <TouchableOpacity
-              onPress={() => {
-                handleOnPress('repeat');
-              }}
-              style={styles.btn}>
-              <Image
-                style={styles.img}
-                resizeMode="contain"
-                source={require('../../assets/icon_image/repeat.png')}
-              />
-            </TouchableOpacity>
-            <Text style={styles.text}>Repeat</Text>
-          </View>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
-            <TouchableOpacity
-              onPress={() => {
-                handleOnPress('next');
-              }}
-              style={styles.btn}>
-              <Image
-                style={[styles.img]}
-                resizeMode="contain"
-                source={require('../../assets/icon_image/next_last.png')}
-              />
-            </TouchableOpacity>
-            <Text style={styles.text}>Next</Text>
+        <View style={{flex: 1}}>
+          <View style={styles.btnContainer}>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleOnPress('home');
+                }}
+                style={styles.btn}>
+                <Image
+                  style={styles.img}
+                  resizeMode="contain"
+                  source={require('../../assets/icon_image/home_left.png')}
+                />
+              </TouchableOpacity>
+              <Text style={styles.text}>Home</Text>
+            </View>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleOnPress('repeat');
+                }}
+                style={styles.btn}>
+                <Image
+                  style={styles.img}
+                  resizeMode="contain"
+                  source={require('../../assets/icon_image/repeat.png')}
+                />
+              </TouchableOpacity>
+              <Text style={styles.text}>Repeat</Text>
+            </View>
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleOnPress('next');
+                }}
+                style={styles.btn}>
+                <Image
+                  style={[styles.img]}
+                  resizeMode="contain"
+                  source={require('../../assets/icon_image/next_last.png')}
+                />
+              </TouchableOpacity>
+              <Text style={styles.text}>Next</Text>
+            </View>
           </View>
         </View>
+        <BannerAd
+          unitId={utils.addIts.BANNER ?? ''}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
       </SafeAreaView>
     </ImageBackground>
   );

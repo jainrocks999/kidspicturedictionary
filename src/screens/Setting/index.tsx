@@ -2,8 +2,6 @@ import {
   ImageBackground,
   Image,
   StatusBar,
-  StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -16,8 +14,11 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Check from '../../components/Check';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux/store';
+import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 type props = StackScreenProps<navigationParams, 'Setting_Screen'>;
 const Setting: React.FC<props> = ({navigation}) => {
+  console.log(utils.addIts);
+
   const {setting, screens} = useSelector((state: rootState) => state.data);
   const dispatch = useDispatch();
   const [value, setvalue] = useState({
@@ -98,7 +99,11 @@ const Setting: React.FC<props> = ({navigation}) => {
           />
         </View>
         <View style={styles.btnContainer}>
-          <TouchableOpacity style={styles.btn}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+            }}
+            style={styles.btn}>
             <Image
               resizeMode="contain"
               style={styles.img}
@@ -112,6 +117,15 @@ const Setting: React.FC<props> = ({navigation}) => {
               source={require('../../assets/icon_image/save.png')}
             />
           </TouchableOpacity>
+        </View>
+        <View>
+          <BannerAd
+            unitId={utils.addIts.BANNER ?? ''}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         </View>
       </SafeAreaView>
     </ImageBackground>

@@ -6,6 +6,7 @@ import {
   Alert,
   TouchableOpacity,
   Animated as Anim2,
+  SafeAreaView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -34,10 +35,8 @@ import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
 } from 'react-native-audio-recorder-player';
-
 import RNFS from 'react-native-fs';
-import {FetchDataParams, fetchData} from '../../redux/reducres';
-import {categoreis} from '../../types/Genius/db';
+import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 type props = StackScreenProps<navigationParams, 'Detail_Screen'>;
 const Detail: React.FC<props> = ({navigation}) => {
@@ -138,6 +137,15 @@ const Detail: React.FC<props> = ({navigation}) => {
       });
     }
   };
+  const getFildereddata = (value: string) => {
+    const currentitem = data[currentIndex];
+    let dataToupdate = [...data];
+    dataToupdate[currentIndex] = {...currentitem, record_sound: value};
+    dispatch({
+      type: 'picDict/setUpdateData',
+      payload: dataToupdate,
+    });
+  };
 
   const onStartRecord = async () => {
     const audioSet = {
@@ -165,6 +173,7 @@ const Detail: React.FC<props> = ({navigation}) => {
 
       return;
     });
+    getFildereddata('yes');
     utils.updateRecord('yes', data[currentIndex].ID);
   };
   function calculatePercentageFromTimeString(
@@ -250,191 +259,219 @@ const Detail: React.FC<props> = ({navigation}) => {
       currentIndex
     ].word.toLocaleLowerCase()}.mp4`;
     const res = await RNFS.exists(path);
-    console.log(res);
 
     if (res) {
       await RNFS.unlink(path);
       await utils.updateRecord('', data[currentIndex].ID);
-      // handleOnCategory();
+      getFildereddata('');
     }
   };
-  const handleOnCategory = async () => {
-    const fetchdata: FetchDataParams = {
-      tableName: 'tbl_items',
-      category: data[currentIndex].category.toLocaleUpperCase(),
-      random: setting.Random == 'Yes' ? true : false,
-      dataType: 'data',
-      length: 0,
-      navigation: null,
-      currentCat,
-    };
-    dispatch(fetchData(fetchdata));
-  };
-  console.log(data[currentIndex]);
 
   return (
-    <Drawer
-      open={open}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-      renderDrawerContent={renderDrawerContent}
-      drawerPosition="right">
-      <ImageBackground
-        resizeMode="stretch"
-        style={styles.container}
-        source={require('../../assets/Bg_image/background.png')}>
-        <Header
-          ishome={false}
-          title={{
-            title1: data[currentIndex]?.word,
-            title2: data[currentIndex]?.sentence,
-          }}
-          onLeftPress={async () => {
-            await TrackPlayer.reset();
-            navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
-          }}
-          onRightPress={() => setOpen(prev => !prev)}
-        />
-        <Modals
-          onRecord={() => {
-            toggleRecorder(!recoring);
-          }}
-          progress={progress}
-          plaprogess={playprogress}
-          onClose={() => {
-            // handleOnCategory();
-            setVisible(false);
-          }}
-          onPlay={() => onPlay()}
-          visible={visible}
-          recoring={recoring}
-          isplaying={playing}
-        />
-        <PanGestureHandler
-          onGestureEvent={({nativeEvent}) => {
-            translationX.value = nativeEvent.translationX;
-          }}
-          onHandlerStateChange={({nativeEvent}) => {
-            if (nativeEvent.state === State.END) {
-              if (nativeEvent.translationX > 50 && currentIndex > 0) {
-                setting.Swipe == 'Yes'
-                  ? changeImageWithAnimation('prev')
-                  : null;
-              } else if (
-                nativeEvent.translationX < -50 &&
-                currentIndex < data.length
-              ) {
-                setting.Swipe == 'Yes'
-                  ? changeImageWithAnimation('next')
-                  : null;
+    <ImageBackground
+      resizeMode="stretch"
+      style={styles.container}
+      source={require('../../assets/Bg_image/background.png')}>
+      <SafeAreaView style={styles.container}>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          onOpen={() => setOpen(true)}
+          renderDrawerContent={renderDrawerContent}
+          drawerPosition="right">
+          <Header
+            ishome={false}
+            title={{
+              title1: data[currentIndex]?.word,
+              title2: data[currentIndex]?.sentence,
+            }}
+            onLeftPress={async () => {
+              await TrackPlayer.reset();
+              navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+            }}
+            onRightPress={() => setOpen(prev => !prev)}
+          />
+          <Modals
+            onRecord={() => {
+              toggleRecorder(!recoring);
+            }}
+            progress={progress}
+            plaprogess={playprogress}
+            onClose={async () => {
+              if (playing) {
+                onStopPlay();
               }
-              translationX.value = withTiming(0, {
-                duration: 300,
-                easing: Easing.ease,
-              });
-            }
-          }}>
-          <Animated.View
-            style={[
-              styles.cat_image,
-              animatedStyle,
-              tablet ? {marginTop: heightPercent(5)} : undefined,
-            ]}>
-            {!visible ? (
-              <View style={styles.RecordContainer}>
+              if (recoring) {
+                onStopRecord();
+              }
+
+              setVisible(false);
+            }}
+            onPlay={() => {
+              if (data[currentIndex].record_sound == 'yes') {
+                !playing ? onPlay() : onStopPlay();
+              }
+            }}
+            visible={visible}
+            recoring={recoring}
+            isplaying={playing}
+          />
+          <PanGestureHandler
+            onGestureEvent={({nativeEvent}) => {
+              translationX.value = nativeEvent.translationX;
+            }}
+            onHandlerStateChange={({nativeEvent}) => {
+              if (nativeEvent.state === State.END) {
+                if (nativeEvent.translationX > 50 && currentIndex > 0) {
+                  setting.Swipe == 'Yes'
+                    ? changeImageWithAnimation('prev')
+                    : null;
+                } else if (
+                  nativeEvent.translationX < -50 &&
+                  currentIndex < data.length
+                ) {
+                  setting.Swipe == 'Yes'
+                    ? changeImageWithAnimation('next')
+                    : null;
+                }
+                translationX.value = withTiming(0, {
+                  duration: 300,
+                  easing: Easing.ease,
+                });
+              }
+            }}>
+            <Animated.View
+              style={[
+                styles.cat_image,
+                animatedStyle,
+                tablet ? {marginTop: heightPercent(5)} : undefined,
+              ]}>
+              {!visible ? (
+                <View style={styles.RecordContainer}>
+                  <TouchableOpacity
+                    onPress={() => setVisible(true)}
+                    style={styles.recoring}>
+                    <Image
+                      resizeMode="contain"
+                      style={styles.img}
+                      source={require('../../assets/icon_image/recrding.png')}
+                    />
+                  </TouchableOpacity>
+                  {data[currentIndex]?.record_sound == 'yes' ? (
+                    <>
+                      <TouchableOpacity
+                        onPress={toggleTrashVisibility}
+                        style={styles.recoring2}>
+                        <Image
+                          resizeMode="contain"
+                          style={styles.img}
+                          source={require('../../assets/icon_image/main_talk_btn1.png')}
+                        />
+                      </TouchableOpacity>
+                      {isTrashVisible && (
+                        <Anim2.View
+                          style={[
+                            styles.trash,
+                            {transform: [{translateY: slideAnim}]},
+                          ]}>
+                          <TouchableOpacity
+                            onPress={() => {
+                              deleteRecorded();
+                            }}
+                            style={{height: '100%', width: '100%'}}>
+                            <Image
+                              resizeMode="contain"
+                              style={styles.img}
+                              source={require('../../assets/icon_image/trashButton.png')}
+                            />
+                          </TouchableOpacity>
+                        </Anim2.View>
+                      )}
+                    </>
+                  ) : null}
+                </View>
+              ) : null}
+              <Image
+                resizeMode="stretch"
+                style={styles.img}
+                source={{
+                  uri: `${utils.path}${data[
+                    currentIndex
+                  ]?.image.toLocaleLowerCase()}`,
+                }}
+              />
+              {setting.Swipe == 'Yes' ? (
                 <TouchableOpacity
-                  onPress={() => setVisible(true)}
-                  style={styles.recoring}>
+                  onPress={() => {
+                    palySound(currentIndex, 'reapet');
+                  }}
+                  style={[
+                    styles.btn,
+                    {
+                      height: '18%',
+                      width: '18%',
+                      position: 'absolute',
+                      bottom: 0,
+                    },
+                  ]}>
                   <Image
                     resizeMode="contain"
-                    style={styles.img}
-                    source={require('../../assets/icon_image/recrding.png')}
+                    style={[styles.img, {height: '100%'}]}
+                    source={require('../../assets/icon_image/repeat_sound.png')}
                   />
                 </TouchableOpacity>
-                {data[currentIndex]?.record_sound == 'yes' ? (
-                  <>
-                    <TouchableOpacity
-                      onPress={toggleTrashVisibility}
-                      style={styles.recoring2}>
-                      <Image
-                        resizeMode="contain"
-                        style={styles.img}
-                        source={require('../../assets/icon_image/main_talk_btn1.png')}
-                      />
-                    </TouchableOpacity>
-                    {isTrashVisible && (
-                      <Anim2.View
-                        style={[
-                          styles.trash,
-                          {transform: [{translateY: slideAnim}]},
-                        ]}>
-                        <TouchableOpacity
-                          onPress={() => {
-                            deleteRecorded();
-                          }}
-                          style={{height: '100%', width: '100%'}}>
-                          <Image
-                            resizeMode="contain"
-                            style={styles.img}
-                            source={require('../../assets/icon_image/trashButton.png')}
-                          />
-                        </TouchableOpacity>
-                      </Anim2.View>
-                    )}
-                  </>
+              ) : null}
+            </Animated.View>
+          </PanGestureHandler>
+          {!visible && setting.Swipe !== 'Yes' ? (
+            <View style={styles.btnContainer}>
+              <TouchableOpacity
+                onPress={() => changeImageWithAnimation('prev')}
+                disabled={currentIndex <= 0}
+                style={styles.btn}>
+                {currentIndex > 0 ? (
+                  <Image
+                    style={styles.img}
+                    resizeMode="stretch"
+                    source={require('../../assets/icon_image/btnPrevious.png')}
+                  />
                 ) : null}
-              </View>
-            ) : null}
-            <Image
-              resizeMode="stretch"
-              style={styles.img}
-              source={{
-                uri: `${utils.path}${data[
-                  currentIndex
-                ]?.image.toLocaleLowerCase()}`,
-              }}
-            />
-          </Animated.View>
-        </PanGestureHandler>
-        {!visible && setting.Swipe !== 'Yes' ? (
-          <View style={styles.btnContainer}>
-            <TouchableOpacity
-              onPress={() => changeImageWithAnimation('prev')}
-              disabled={currentIndex <= 0}
-              style={styles.btn}>
-              {currentIndex > 0 ? (
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  palySound(currentIndex, 'reapet');
+                }}
+                style={[styles.btn, {height: '100%'}]}>
+                <Image
+                  resizeMode="contain"
+                  style={[styles.img, {height: '100%'}]}
+                  source={require('../../assets/icon_image/repeat_sound.png')}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={currentIndex == data.length}
+                onPress={() => changeImageWithAnimation('next')}
+                style={styles.btn}>
                 <Image
                   style={styles.img}
                   resizeMode="stretch"
-                  source={require('../../assets/icon_image/btnPrevious.png')}
+                  source={require('../../assets/icon_image/btnNext.png')}
                 />
-              ) : null}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                palySound(currentIndex, 'reapet');
-              }}
-              style={styles.btn}>
-              <Image
-                resizeMode="contain"
-                style={[styles.img, {height: '100%'}]}
-                source={require('../../assets/icon_image/repeat_sound.png')}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={currentIndex == data.length}
-              onPress={() => changeImageWithAnimation('next')}
-              style={styles.btn}>
-              <Image
-                style={styles.img}
-                resizeMode="stretch"
-                source={require('../../assets/icon_image/btnNext.png')}
-              />
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </ImageBackground>
-    </Drawer>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </Drawer>
+        <View>
+          <BannerAd
+            unitId={utils.addIts.BANNER ?? ''}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 

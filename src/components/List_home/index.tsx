@@ -10,6 +10,7 @@ const CategoryList: React.FC<props> = ({data, onPress}) => {
   return (
     <FlatList
       showsVerticalScrollIndicator={false}
+      scrollEnabled={false}
       data={data}
       numColumns={2}
       keyExtractor={item => item._id.toString()}

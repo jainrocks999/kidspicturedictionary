@@ -6,12 +6,12 @@ export default StyleSheet.create({
     flex: 1,
   },
   logoContainer: {
-    marginTop: hp(35),
+    marginTop: '65%',
     alignSelf: 'center',
     width: '100%',
   },
   btnContainer: {
-    marginTop: hp(15),
+    marginTop: '30%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
