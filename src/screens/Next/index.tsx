@@ -64,6 +64,19 @@ const Next: React.FC<props> = ({navigation}) => {
     handOnSound();
   }, [setting, screens]);
   useEffect(() => {
+    const un = setTimeout(() => {
+      dispatch({
+        type: 'picDict/setUpdateData',
+        payload: [],
+      });
+    }, 500);
+
+    return () => {
+      un;
+    };
+  }, []);
+
+  useEffect(() => {
     utils.showAdd();
   }, []);
 

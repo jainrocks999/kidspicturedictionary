@@ -67,66 +67,70 @@ const Setting: React.FC<props> = ({navigation}) => {
       resizeMode="stretch"
       source={require('../../assets/Bg_image/settingpage.png')}>
       <StatusBar backgroundColor={utils.COLORS.yellow} />
-      <SafeAreaView style={{flex: 1}}>
-        <View style={styles.logoContainer}>
-          <Check
-            title="Voice"
-            value={value.Voice}
-            onPress={value => {
-              handleOnToggel('Voice', value);
-            }}
-          />
-          <Check
-            title="Bg Music"
-            value={value.Bgsound}
-            onPress={value => {
-              handleOnToggel('Bgsound', value);
-            }}
-          />
-          <Check
-            title="Random"
-            value={value.Random}
-            onPress={value => {
-              handleOnToggel('Random', value);
-            }}
-          />
-          <Check
-            title="Swipe"
-            value={value.Swipe}
-            onPress={value => {
-              handleOnToggel('Swipe', value);
-            }}
-          />
-        </View>
-        <View style={styles.btnContainer}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
-            }}
-            style={styles.btn}>
-            <Image
-              resizeMode="contain"
-              style={styles.img}
-              source={require('../../assets/icon_image/cancel.png')}
+      <SafeAreaView style={styles.container}>
+        <View style={styles.setting}>
+          <View style={styles.logoContainer}>
+            <Check
+              title="Voice"
+              value={value.Voice}
+              onPress={value => {
+                handleOnToggel('Voice', value);
+              }}
             />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handdleOnSave()} style={styles.btn}>
-            <Image
-              resizeMode="contain"
-              style={styles.img}
-              source={require('../../assets/icon_image/save.png')}
+            <Check
+              title="Bg Music"
+              value={value.Bgsound}
+              onPress={value => {
+                handleOnToggel('Bgsound', value);
+              }}
             />
-          </TouchableOpacity>
+            <Check
+              title="Random"
+              value={value.Random}
+              onPress={value => {
+                handleOnToggel('Random', value);
+              }}
+            />
+            <Check
+              title="Swipe"
+              value={value.Swipe}
+              onPress={value => {
+                handleOnToggel('Swipe', value);
+              }}
+            />
+          </View>
+
+          <View style={styles.btnContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+              }}
+              style={styles.btn}>
+              <Image
+                resizeMode="contain"
+                style={styles.img}
+                source={require('../../assets/icon_image/cancel.png')}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handdleOnSave()}
+              style={styles.btn}>
+              <Image
+                resizeMode="contain"
+                style={styles.img}
+                source={require('../../assets/icon_image/save.png')}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-        <View>
-          <BannerAd
-            unitId={utils.addIts.BANNER ?? ''}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-          />
-        </View>
+
+        <BannerAd
+          unitId={utils.addIts.BANNER ?? ''}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
       </SafeAreaView>
     </ImageBackground>
   );

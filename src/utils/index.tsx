@@ -1,4 +1,4 @@
-import {Alert, Platform} from 'react-native';
+import {Platform} from 'react-native';
 import RNFS from 'react-native-fs';
 import {
   AdEventType,
@@ -165,7 +165,7 @@ export default class utils {
       link: Platform.select({
         android:
           'https://play.google.com/store/apps/details?id=project.wow.kidspicturedictionary',
-        ios: 'https://apps.apple.com/us/app/toddler-flashcards-english-baby-flash-cards-genius/id409571265',
+        ios: 'https://apps.apple.com/us/app/kids-picture-dictionary-learn-english-a-z-words/id482972824',
       }),
     },
   ];
@@ -289,8 +289,8 @@ export default class utils {
         INTERSTITIAL: TestIds.INTERSTITIAL,
       },
       ios: {
-        BANNER: TestIds.BANNER,
-        INTERSTITIAL: TestIds.INTERSTITIAL,
+        BANNER: 'ca-app-pub-3339897183017333/3825481184',
+        INTERSTITIAL: 'ca-app-pub-3339897183017333/6260601584',
       },
     }),
   };

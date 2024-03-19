@@ -43,13 +43,12 @@ const Modals: React.FC<props> = ({
             style={[
               styles.btn,
               {
-                height: hp(7),
-                width: hp(7),
+                width: '100%',
                 alignItems: 'center',
                 justifyContent: 'center',
               },
             ]}>
-            <Progress.Pie progress={progress} size={hp(7)} color="white" />
+            <Progress.Pie progress={progress} size={hp(6)} color="white" />
             <Image
               resizeMode="contain"
               style={{height: '100%', width: '100%', position: 'absolute'}}
@@ -68,29 +67,30 @@ const Modals: React.FC<props> = ({
             style={[
               styles.btn,
               {
-                height: hp(7),
-                width: hp(7),
+                width: '100%',
                 alignItems: 'center',
                 justifyContent: 'center',
               },
             ]}>
-            <Progress.Pie progress={plaprogess} size={hp(7)} color="white" />
+            <Progress.Pie progress={plaprogess} size={hp(6)} color="white" />
             <Image
               resizeMode="contain"
               style={{height: '122%', width: '122%', position: 'absolute'}}
               source={require('../../assets/icon_image/playRecorded.png')}
             />
           </TouchableOpacity>
-          <Text style={styles.txt}>{!isplaying ? 'Play' : 'Pause'}</Text>
+          <Text style={styles.txt}>{!isplaying ? 'Play' : 'Stop'}</Text>
         </View>
-        <TouchableOpacity onPress={onClose} style={styles.btn}>
-          <Image
-            resizeMode="contain"
-            style={styles.img}
-            source={require('../../assets/icon_image/closeButton.png')}
-          />
-          <Text style={styles.txt}>Close</Text>
-        </TouchableOpacity>
+        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+          <TouchableOpacity onPress={onClose} style={styles.btn}>
+            <Image
+              resizeMode="contain"
+              style={styles.img}
+              source={require('../../assets/icon_image/closeButton.png')}
+            />
+            <Text style={styles.txt}>Close</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Modal>
   );
@@ -100,27 +100,28 @@ export default Modals;
 
 const styles = StyleSheet.create({
   conatiner: {
-    height: hp(12),
+    paddingVertical: hp(0.5),
     backgroundColor: 'rgba(69, 71, 71,0.7)',
     marginTop: hp(80),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: wp(3),
+    paddingHorizontal: wp(4),
+    borderWidth: 1,
   },
   img: {
     height: '100%',
     width: '100%',
   },
   btn: {
-    height: hp(7),
-    width: hp(7),
+    height: hp(6),
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   txt: {
     color: 'white',
-    fontSize: wp(5),
+    fontSize: hp(2.3),
     fontWeight: '700',
     marginTop: '2%',
   },

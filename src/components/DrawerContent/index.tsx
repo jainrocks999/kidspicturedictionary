@@ -41,12 +41,13 @@ const DrawerContent: React.FC<props> = ({data, onPress}) => {
                   style={styles.mainContainer}>
                   <Image
                     style={styles.image}
+                    resizeMode="stretch"
                     source={{
                       uri: `${utils.path}${item.image.toLocaleLowerCase()}`,
                     }}
                   />
                   <Text
-                    style={[styles.index, {marginLeft: '7%', width: '35%'}]}>
+                    style={[styles.index, {marginLeft: '7%', width: '45%'}]}>
                     {item.word}
                   </Text>
                   {item.record_sound == 'yes' ? (
@@ -82,8 +83,8 @@ const styles = StyleSheet.create({
   },
   index: {
     color: '#acacac',
-    fontSize: wp(6),
-    fontWeight: '700',
+    fontSize: wp(5),
+    fontWeight: '600',
   },
   list: {
     height: hp(10),
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: '90%',
-    width: '30%',
+    width: '25%',
     borderRadius: wp(2),
   },
   menuBtn: {

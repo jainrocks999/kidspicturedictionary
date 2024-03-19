@@ -1,17 +1,17 @@
 import {StyleSheet} from 'react-native';
 import {heightPercent as hp, widthPrecent as wp} from '../../utils/responsive';
-
+import {isTablet} from 'react-native-device-info';
+const istablet = isTablet();
 export default StyleSheet.create({
   container: {
     flex: 1,
   },
   logoContainer: {
-    marginTop: '65%',
     alignSelf: 'center',
     width: '100%',
+    marginTop: istablet ? '48%' : '70%',
   },
   btnContainer: {
-    marginTop: '30%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -25,5 +25,11 @@ export default StyleSheet.create({
   btn: {
     height: hp(8),
     width: wp(30),
+  },
+  setting: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: istablet ? '1.5%' : '0%',
   },
 });

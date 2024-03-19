@@ -1,12 +1,12 @@
 import {
   View,
-  Text,
   ImageBackground,
   Image,
-  Alert,
   TouchableOpacity,
   Animated as Anim2,
   SafeAreaView,
+  Alert,
+  BackHandler,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -70,9 +70,9 @@ const Detail: React.FC<props> = ({navigation}) => {
     } else {
       setCurrentIndex(prev => prev + 1);
       await TrackPlayer.reset();
-
-      // utils.showAdd();
-      navigation.replace('Next_Screen');
+      if (data.length > 0) {
+        navigation.replace('Next_Screen');
+      }
     }
   };
   const tablet = isTablet();
@@ -137,17 +137,17 @@ const Detail: React.FC<props> = ({navigation}) => {
       });
     }
   };
-  const getFildereddata = (value: string) => {
+  const getFildereddata = (value: string, bool: boolean) => {
     const currentitem = data[currentIndex];
     let dataToupdate = [...data];
     dataToupdate[currentIndex] = {...currentitem, record_sound: value};
     dispatch({
       type: 'picDict/setUpdateData',
-      payload: dataToupdate,
+      payload: bool ? [] : dataToupdate,
     });
   };
 
-  const onStartRecord = async () => {
+  const onStartRecord = async (bool: boolean) => {
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
       AudioSourceAndroid: AudioSourceAndroidType.MIC,
@@ -173,8 +173,14 @@ const Detail: React.FC<props> = ({navigation}) => {
 
       return;
     });
-    getFildereddata('yes');
-    utils.updateRecord('yes', data[currentIndex].ID);
+    if (await RNFS.exists(result)) {
+      utils.updateRecord('yes', data[currentIndex].ID);
+      getFildereddata('yes', false);
+      setRecording(true);
+    } else {
+      setRecording(false);
+      Alert.alert('Something went wrong with recording.');
+    }
   };
   function calculatePercentageFromTimeString(
     timeString: string,
@@ -191,7 +197,7 @@ const Detail: React.FC<props> = ({navigation}) => {
       time = totalTime;
     }
 
-    const currentTime = minutes * 60 + seconds + milliseconds / 1000; // Convert time to seconds
+    const currentTime = minutes * 60 + seconds + milliseconds / 1000;
 
     return calculatePercentage(currentTime, time);
   }
@@ -222,18 +228,25 @@ const Detail: React.FC<props> = ({navigation}) => {
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
     ].word.toLocaleLowerCase()}.mp4`;
-    setPlaying(prev => !prev);
-    const resul = await audioRecorderPlayer.startPlayer(path);
-    console.log(resul);
 
-    audioRecorderPlayer.addPlayBackListener(e => {
-      let recordTime = audioRecorderPlayer.mmssss(
-        Math.floor(e.currentPosition),
-      );
-      let recordTime2 = audioRecorderPlayer.mmssss(Math.floor(e.duration));
-      const times = calculatePercentageFromTimeString(recordTime, recordTime2);
-      setplayProgress(times);
-    });
+    if (await RNFS.exists(path)) {
+      setPlaying(prev => !prev);
+      const resul = await audioRecorderPlayer.startPlayer(path);
+
+      audioRecorderPlayer.addPlayBackListener(e => {
+        let recordTime = audioRecorderPlayer.mmssss(
+          Math.floor(e.currentPosition),
+        );
+        let recordTime2 = audioRecorderPlayer.mmssss(Math.floor(e.duration));
+        const times = calculatePercentageFromTimeString(
+          recordTime,
+          recordTime2,
+        );
+        setplayProgress(times);
+      });
+    } else {
+      Alert.alert('Please record voice first.');
+    }
   };
   const onStopPlay = async () => {
     await audioRecorderPlayer.stopPlayer();
@@ -242,17 +255,16 @@ const Detail: React.FC<props> = ({navigation}) => {
     setplayProgress(0);
   };
   useEffect(() => {
-    data.length > 0 && setting.Voice == 'Yes'
+    data.length > 0 && setting.Voice == 'Yes' && !visible
       ? palySound(currentIndex, '')
-      : null;
+      : utils.resetPlayer();
   }, [data]);
   const toggleRecorder = async (bool: boolean) => {
     if (bool) {
-      await onStartRecord();
+      await onStartRecord(bool);
     } else {
       await onStopRecord();
     }
-    setRecording(bool);
   };
   const deleteRecorded = async () => {
     const path = `${RNFS.DocumentDirectoryPath}/${data[
@@ -262,11 +274,22 @@ const Detail: React.FC<props> = ({navigation}) => {
 
     if (res) {
       await RNFS.unlink(path);
-      await utils.updateRecord('', data[currentIndex].ID);
-      getFildereddata('');
+      utils.updateRecord('', data[currentIndex].ID);
+      getFildereddata('', false);
     }
   };
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        getFildereddata('', true);
+        navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+        return true;
+      },
+    );
 
+    return () => backHandler.remove();
+  }, []);
   return (
     <ImageBackground
       resizeMode="stretch"
@@ -274,6 +297,9 @@ const Detail: React.FC<props> = ({navigation}) => {
       source={require('../../assets/Bg_image/background.png')}>
       <SafeAreaView style={styles.container}>
         <Drawer
+          drawerStyle={{
+            width: '65%',
+          }}
           open={open}
           onClose={() => setOpen(false)}
           onOpen={() => setOpen(true)}
@@ -281,12 +307,14 @@ const Detail: React.FC<props> = ({navigation}) => {
           drawerPosition="right">
           <Header
             ishome={false}
+            isDetail={!open}
             title={{
               title1: data[currentIndex]?.word,
               title2: data[currentIndex]?.sentence,
             }}
             onLeftPress={async () => {
               await TrackPlayer.reset();
+              getFildereddata('', true);
               navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
             }}
             onRightPress={() => setOpen(prev => !prev)}
@@ -310,6 +338,8 @@ const Detail: React.FC<props> = ({navigation}) => {
             onPlay={() => {
               if (data[currentIndex].record_sound == 'yes') {
                 !playing ? onPlay() : onStopPlay();
+              } else {
+                Alert.alert('Please record voice first.');
               }
             }}
             visible={visible}

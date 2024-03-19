@@ -14,12 +14,14 @@ type props = {
     title2: string;
   };
   onLeftPress: () => void;
+  isDetail: boolean;
 };
 const Header: React.FC<props> = ({
   ishome,
   onRightPress,
   title,
   onLeftPress,
+  isDetail,
 }) => {
   const getArray = () => {
     const sentence = title.title2?.split(' ');
@@ -64,14 +66,16 @@ const Header: React.FC<props> = ({
           </View>
         ) : null}
         <TouchableOpacity onPress={onRightPress} style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={
-              ishome
-                ? require('../../assets/icon_image/setting_btn.png')
-                : require('../../assets/icon_image/btnSlider.png')
-            }
-          />
+          {isDetail || ishome ? (
+            <Image
+              style={styles.icon}
+              source={
+                ishome
+                  ? require('../../assets/icon_image/setting_btn.png')
+                  : require('../../assets/icon_image/btnSlider.png')
+              }
+            />
+          ) : null}
         </TouchableOpacity>
       </View>
     </View>
