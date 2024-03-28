@@ -57,6 +57,9 @@ const Detail: React.FC<props> = ({navigation}) => {
   const [progress, setProgress] = useState(0);
   const [playprogress, setplayProgress] = useState(0);
   const changeImageWithAnimation = async (direction: string) => {
+    if (isTrashVisible) {
+      setTrashVisible(false);
+    }
     setCount(pre => (direction == 'next' ? pre + 1 : pre - 1));
     const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
     if (newIndex >= 0 && newIndex < data.length) {
@@ -491,7 +494,7 @@ const Detail: React.FC<props> = ({navigation}) => {
             </View>
           ) : null}
         </Drawer>
-        <View>
+        {/* <View>
           <BannerAd
             unitId={utils.addIts.BANNER ?? ''}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -499,7 +502,7 @@ const Detail: React.FC<props> = ({navigation}) => {
               requestNonPersonalizedAdsOnly: true,
             }}
           />
-        </View>
+        </View> */}
       </SafeAreaView>
     </ImageBackground>
   );

@@ -1,10 +1,11 @@
 import {View, Text} from 'react-native';
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
+import {createStackNavigator, StackScreenProps} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
 import _routes from './navigation_routes/routes';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../redux/store';
+import SplashII from '../screens/SplashII';
 export type navigationParams = {
   SPlash_Screen: undefined;
   SPlash_ScreenII: undefined;

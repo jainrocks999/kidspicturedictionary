@@ -76,9 +76,9 @@ const Next: React.FC<props> = ({navigation}) => {
     };
   }, []);
 
-  useEffect(() => {
-    utils.showAdd();
-  }, []);
+  // useEffect(() => {
+  //   utils.showAdd();
+  // }, []);
 
   const handOnSound = async () => {
     const track = {
@@ -149,13 +149,13 @@ const Next: React.FC<props> = ({navigation}) => {
             </View>
           </View>
         </View>
-        <BannerAd
+        {/* <BannerAd
           unitId={utils.addIts.BANNER ?? ''}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
           }}
-        />
+        /> */}
       </SafeAreaView>
     </ImageBackground>
   );

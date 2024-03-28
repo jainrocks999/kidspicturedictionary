@@ -123,14 +123,15 @@ const Setting: React.FC<props> = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
-
-        <BannerAd
+        <View style={styles.addContainer}>
+          {/* <BannerAd
           unitId={utils.addIts.BANNER ?? ''}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
           }}
-        />
+        /> */}
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );

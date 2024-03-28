@@ -72,6 +72,7 @@ const Home: React.FC<props> = ({navigation}) => {
           onLeftPress={() => {
             null;
           }}
+          isDetail={false}
           ishome
           title={{title1: '', title2: ''}}
         />
@@ -82,13 +83,13 @@ const Home: React.FC<props> = ({navigation}) => {
             onPress={(item: any) => Linking.openURL(item.link)}
           />
         </ScrollView>
-        <BannerAd
+        {/* <BannerAd
           unitId={utils.addIts.BANNER ?? ''}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
           }}
-        />
+        /> */}
       </SafeAreaView>
     </ImageBackground>
   );

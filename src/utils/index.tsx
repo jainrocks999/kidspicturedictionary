@@ -164,7 +164,7 @@ export default class utils {
       cat_img: require('../assets/cat_image/ireview.png'),
       link: Platform.select({
         android:
-          'https://play.google.com/store/apps/details?id=project.wow.kidspicturedictionary',
+          'https://play.google.com/store/apps/details?id=com.kidspicturedictionary',
         ios: 'https://apps.apple.com/us/app/kids-picture-dictionary-learn-english-a-z-words/id482972824',
       }),
     },

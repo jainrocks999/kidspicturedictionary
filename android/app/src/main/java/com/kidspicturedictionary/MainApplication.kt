@@ -1,4 +1,4 @@
-package project.wow.kidspicturedictionary
+package com.kidspicturedictionary
 
 import android.app.Application
 import com.facebook.react.PackageList

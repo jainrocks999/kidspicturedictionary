@@ -9,7 +9,7 @@ export default StyleSheet.create({
   logoContainer: {
     alignSelf: 'center',
     width: '100%',
-    marginTop: istablet ? '48%' : '70%',
+    marginTop: istablet ? '55%' : '70%',
   },
   btnContainer: {
     flexDirection: 'row',
@@ -31,5 +31,8 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: istablet ? '1.5%' : '0%',
+  },
+  addContainer: {
+    height: hp(9),
   },
 });

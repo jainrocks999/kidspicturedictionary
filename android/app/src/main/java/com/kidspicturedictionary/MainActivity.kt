@@ -1,4 +1,4 @@
-package project.wow.kidspicturedictionary
+package com.kidspicturedictionary
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
