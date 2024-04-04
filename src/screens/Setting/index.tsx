@@ -124,13 +124,13 @@ const Setting: React.FC<props> = ({navigation}) => {
           </View>
         </View>
         <View style={styles.addContainer}>
-          {/* <BannerAd
-          unitId={utils.addIts.BANNER ?? ''}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-        /> */}
+          <BannerAd
+            unitId={utils.addIts.BANNER ?? ''}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         </View>
       </SafeAreaView>
     </ImageBackground>

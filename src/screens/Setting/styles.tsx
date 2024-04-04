@@ -21,10 +21,12 @@ export default StyleSheet.create({
   img: {
     height: '100%',
     width: '100%',
+    marginTop: '10%',
   },
   btn: {
     height: hp(8),
     width: wp(30),
+    bottom: 0,
   },
   setting: {
     flex: 1,

@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Alert,
   BackHandler,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -160,7 +161,8 @@ const Detail: React.FC<props> = ({navigation}) => {
     };
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
-    ].word.toLocaleLowerCase()}.mp4`;
+    ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
+    // Alert.alert(path);
 
     if (playing) {
       onStopPlay();
@@ -230,7 +232,7 @@ const Detail: React.FC<props> = ({navigation}) => {
     }
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
-    ].word.toLocaleLowerCase()}.mp4`;
+    ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
 
     if (await RNFS.exists(path)) {
       setPlaying(prev => !prev);
@@ -272,7 +274,7 @@ const Detail: React.FC<props> = ({navigation}) => {
   const deleteRecorded = async () => {
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
-    ].word.toLocaleLowerCase()}.mp4`;
+    ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
     const res = await RNFS.exists(path);
 
     if (res) {
