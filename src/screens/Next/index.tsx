@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,9 +16,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux/store';
 import {FetchDataParams, fetchData} from '../../redux/reducres';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {IAPContext} from '../../Context';
 type props = StackScreenProps<navigationParams, 'Next_Screen'>;
 
 const Next: React.FC<props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const dispatch = useDispatch<any>();
   const {currentCat, setting, screens} = useSelector(
     (state: rootState) => state.data,
@@ -76,9 +78,9 @@ const Next: React.FC<props> = ({navigation}) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   utils.showAdd();
-  // }, []);
+  useEffect(() => {
+    !IAP?.hasPurchased ? utils.showAdd() : null;
+  }, []);
 
   const handOnSound = async () => {
     const track = {
@@ -149,13 +151,15 @@ const Next: React.FC<props> = ({navigation}) => {
             </View>
           </View>
         </View>
-        {/* <BannerAd
-          unitId={utils.addIts.BANNER ?? ''}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
-          }}
-        /> */}
+        {!IAP?.hasPurchased && (
+          <BannerAd
+            unitId={utils.addIts.BANNER ?? ''}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+        )}
       </SafeAreaView>
     </ImageBackground>
   );

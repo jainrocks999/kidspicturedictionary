@@ -15,6 +15,8 @@ type props = {
   };
   onLeftPress: () => void;
   isDetail: boolean;
+  onUpgradePress: () => void;
+  hasPurchased: boolean;
 };
 const Header: React.FC<props> = ({
   ishome,
@@ -22,6 +24,8 @@ const Header: React.FC<props> = ({
   title,
   onLeftPress,
   isDetail,
+  onUpgradePress,
+  hasPurchased,
 }) => {
   const getArray = () => {
     const sentence = title.title2?.split(' ');
@@ -64,6 +68,15 @@ const Header: React.FC<props> = ({
               ))}
             </View>
           </View>
+        ) : ishome && !hasPurchased ? (
+          <TouchableOpacity
+            onPress={onUpgradePress}
+            style={{height: hp(5.5), width: '60%', marginLeft: '-7%'}}>
+            <Image
+              style={{height: '100%', width: '100%'}}
+              source={require('../../assets/icon_image/upgrade.png')}
+            />
+          </TouchableOpacity>
         ) : null}
         <TouchableOpacity onPress={onRightPress} style={styles.iconContainer}>
           {isDetail || ishome ? (

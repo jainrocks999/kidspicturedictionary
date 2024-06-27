@@ -37,4 +37,12 @@ export default StyleSheet.create({
   addContainer: {
     height: hp(9),
   },
+  promoButtun: {
+    height: hp(5.5),
+    width: '60%',
+    position: 'absolute',
+    zIndex: 1,
+    top: hp(2),
+    alignSelf: 'center',
+  },
 });

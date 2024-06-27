@@ -285,14 +285,12 @@ export default class utils {
   static addIts = {
     ...Platform.select({
       android: {
-        BANNER: TestIds.BANNER,
+        BANNER: TestIds.BANNER, //'ca-app-pub-3339897183017333/4196704788', //
         INTERSTITIAL: TestIds.INTERSTITIAL,
       },
       ios: {
-        // BANNER: 'ca-app-pub-3339897183017333/3825481184',
-        // INTERSTITIAL: 'ca-app-pub-3339897183017333/6260601584',
-        BANNER: TestIds.BANNER,
-        INTERSTITIAL: TestIds.INTERSTITIAL,
+        BANNER: 'ca-app-pub-3339897183017333/3825481184',
+        INTERSTITIAL: 'ca-app-pub-3339897183017333/6260601584',
       },
     }),
   };

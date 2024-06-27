@@ -1,3 +1,4 @@
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   ImageBackground,
@@ -9,7 +10,6 @@ import {
   BackHandler,
   Platform,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {navigationParams} from '../../navigation';
 import styles from './styles';
@@ -38,9 +38,11 @@ import AudioRecorderPlayer, {
 } from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {IAPContext} from '../../Context';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 type props = StackScreenProps<navigationParams, 'Detail_Screen'>;
 const Detail: React.FC<props> = ({navigation}) => {
+  const IAP = useContext(IAPContext);
   const dispatch = useDispatch<any>();
   const [slideAnim] = useState(new Anim2.Value(0));
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -323,6 +325,10 @@ const Detail: React.FC<props> = ({navigation}) => {
               navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
             }}
             onRightPress={() => setOpen(prev => !prev)}
+            onUpgradePress={() => {
+              null;
+            }}
+            hasPurchased={IAP?.hasPurchased ?? false}
           />
           <Modals
             onRecord={() => {
@@ -496,15 +502,17 @@ const Detail: React.FC<props> = ({navigation}) => {
             </View>
           ) : null}
         </Drawer>
-        {/* <View>
-          <BannerAd
-            unitId={utils.addIts.BANNER ?? ''}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-          />
-        </View> */}
+        {!IAP?.hasPurchased && (
+          <View>
+            <BannerAd
+              unitId={utils.addIts.BANNER ?? ''}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
+        )}
       </SafeAreaView>
     </ImageBackground>
   );

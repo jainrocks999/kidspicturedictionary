@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {StackScreenProps} from '@react-navigation/stack';
 import {navigationParams} from '../../navigation';
 import styles from './styles';
@@ -15,10 +15,11 @@ import Check from '../../components/Check';
 import {useDispatch, useSelector} from 'react-redux';
 import {rootState} from '../../redux/store';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
+import {IAPContext} from '../../Context';
+import PurchasedeModal from '../../components/PurchaseModal';
 type props = StackScreenProps<navigationParams, 'Setting_Screen'>;
 const Setting: React.FC<props> = ({navigation}) => {
-  console.log(utils.addIts);
-
+  const IAP = useContext(IAPContext);
   const {setting, screens} = useSelector((state: rootState) => state.data);
   const dispatch = useDispatch();
   const [value, setvalue] = useState({
@@ -67,7 +68,29 @@ const Setting: React.FC<props> = ({navigation}) => {
       resizeMode="stretch"
       source={require('../../assets/Bg_image/settingpage.png')}>
       <StatusBar backgroundColor={utils.COLORS.yellow} />
+      {!IAP?.hasPurchased && (
+        <PurchasedeModal
+          onClose={val => IAP?.setVisible(val)}
+          onPress={() => {
+            IAP?.requestPurchase();
+          }}
+          onRestore={() => {
+            IAP?.checkPurchases(true);
+          }}
+          visible={IAP?.visible ?? false}
+        />
+      )}
       <SafeAreaView style={styles.container}>
+        {!IAP?.hasPurchased && (
+          <TouchableOpacity
+            onPress={() => IAP?.setVisible(true)}
+            style={styles.promoButtun}>
+            <Image
+              style={{height: '100%', width: '100%'}}
+              source={require('../../assets/icon_image/upgrade.png')}
+            />
+          </TouchableOpacity>
+        )}
         <View style={styles.setting}>
           <View style={styles.logoContainer}>
             <Check
@@ -123,15 +146,17 @@ const Setting: React.FC<props> = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.addContainer}>
-          <BannerAd
-            unitId={utils.addIts.BANNER ?? ''}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-          />
-        </View>
+        {!IAP?.hasPurchased && (
+          <View style={styles.addContainer}>
+            <BannerAd
+              unitId={utils.addIts.BANNER ?? ''}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
+        )}
       </SafeAreaView>
     </ImageBackground>
   );
