@@ -17,7 +17,7 @@
     "@reduxjs/toolkit": "^2.2.1",
     "react": "18.2.0",
     "react-native": "0.73.5",
-    "react-native-audio-recorder-player": "^3.6.6",
+    "react-native-audio-recorder-player": "^3.6.11",
     "react-native-device-info": "^10.13.1",
     "react-native-drawer-layout": "^3.3.0",
     "react-native-fs": "^2.20.0",

@@ -39,6 +39,7 @@ import AudioRecorderPlayer, {
 import RNFS from 'react-native-fs';
 import {BannerAd, BannerAdSize} from 'react-native-google-mobile-ads';
 import {IAPContext} from '../../Context';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 const audioRecorderPlayer = new AudioRecorderPlayer();
 type props = StackScreenProps<navigationParams, 'Detail_Screen'>;
 const Detail: React.FC<props> = ({navigation}) => {
@@ -57,8 +58,27 @@ const Detail: React.FC<props> = ({navigation}) => {
     recordSecs: 0,
     recordTime: '00.00',
   });
+
+const [recpath,setRecPath]=useState('');
+
   const [progress, setProgress] = useState(0);
   const [playprogress, setplayProgress] = useState(0);
+  const [hasRun, setHasRun] = useState(false);
+
+  // useFocusEffect(() => {
+  //   if (!hasRun) {
+  //     setRecPath('');
+  //     onStartRecord(!recoring)
+      
+
+  //     console.log('Focus effect running only once');
+  //     setHasRun(true);  // Mark that it has run once
+  //   }
+  // });
+
+
+
+
   const changeImageWithAnimation = async (direction: string) => {
     if (isTrashVisible) {
       setTrashVisible(false);
@@ -77,7 +97,10 @@ const Detail: React.FC<props> = ({navigation}) => {
       setCurrentIndex(prev => prev + 1);
       await TrackPlayer.reset();
       if (data.length > 0) {
-        navigation.replace('Next_Screen');
+        // setTimeout(() => {
+        //   navigation.replace('Next_Screen');
+        // }, 100);
+        navigation.reset({index: 0, routes: [{name: 'Next_Screen'}]});
       }
     }
   };
@@ -146,7 +169,9 @@ const Detail: React.FC<props> = ({navigation}) => {
   const getFildereddata = (value: string, bool: boolean) => {
     const currentitem = data[currentIndex];
     let dataToupdate = [...data];
-    dataToupdate[currentIndex] = {...currentitem, record_sound: value};
+    dataToupdate[currentIndex] = {...currentitem, record_sound: value}; 
+    console.log('gfsgjsnfskfnsd',dataToupdate[currentIndex]);
+    
     dispatch({
       type: 'picDict/setUpdateData',
       payload: bool ? [] : dataToupdate,
@@ -154,6 +179,8 @@ const Detail: React.FC<props> = ({navigation}) => {
   };
 
   const onStartRecord = async (bool: boolean) => {
+    console.log('dfssdfdsfdsdf',bool);
+    
     const audioSet = {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
       AudioSourceAndroid: AudioSourceAndroidType.MIC,
@@ -161,30 +188,42 @@ const Detail: React.FC<props> = ({navigation}) => {
       AVNumberOfChannelsKeyIOS: 2,
       AVFormatIDKeyIOS: AVEncodingOption.wav,
     };
-    const path = `${RNFS.DocumentDirectoryPath}/${data[
-      currentIndex
-    ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
-    // Alert.alert(path);
+
+    const path = Platform.select({
+      ios: 'hello.m4a',
+      android: `${RNFS.DocumentDirectoryPath}/${data[currentIndex].word.toLowerCase()}${'.mp4'}`,
+    });
+
 
     if (playing) {
+      
       onStopPlay();
     }
     const result = await audioRecorderPlayer.startRecorder(path, audioSet);
+    console.log('result to data get23222 ',path, audioSet);
+    console.log('result to data get ',result);
+    
     audioRecorderPlayer.addRecordBackListener(e => {
-      let recordTime = audioRecorderPlayer.mmssss(
-        Math.floor(e.currentPosition),
-      );
+      
+      let recordTime = audioRecorderPlayer.mmssss(Math.floor(e.currentPosition));
 
       let progress = calculatePercentageFromTimeString(recordTime, 30);
+      
+      
       setProgress(progress);
-
+      
       return;
     });
+   
     if (await RNFS.exists(result)) {
       utils.updateRecord('yes', data[currentIndex].ID);
       getFildereddata('yes', false);
+      setRecPath(result);
       setRecording(true);
+     
+      
     } else {
+      
       setRecording(false);
       Alert.alert('Something went wrong with recording.');
     }
@@ -192,7 +231,7 @@ const Detail: React.FC<props> = ({navigation}) => {
   function calculatePercentageFromTimeString(
     timeString: string,
     totalTime: number | string,
-  ) {
+  ) {  
     let time: number = 0;
     const [minutes, seconds, milliseconds] = timeString.split(':').map(Number);
     if (typeof totalTime == 'string') {
@@ -210,10 +249,13 @@ const Detail: React.FC<props> = ({navigation}) => {
   }
   function calculatePercentage(currentTime: number, totalTime: number) {
     if (currentTime < 0 || totalTime <= 0) {
+    
       return 0;
     }
 
     if (currentTime >= totalTime) {
+     
+      
       onStopPlay();
       setplayProgress(0);
       onStopRecord();
@@ -223,22 +265,39 @@ const Detail: React.FC<props> = ({navigation}) => {
     return ((currentTime / totalTime) * 100) / 100;
   }
   const onStopRecord = async () => {
+
+    try {
     const result = await audioRecorderPlayer.stopRecorder();
     await audioRecorderPlayer.removeRecordBackListener();
     setProgress(0);
     setRecording(false);
+    return result;
+  } catch (error) {
+    console.error('Error stopping recording:', error);
+    setRecording(false);
+  }
   };
+
+
+
+
   const onPlay = async () => {
     if (recording) {
+      console.log('hhhhbbg',recording);
+      
       onStopRecord();
     }
+    // const path = Platform.select({
+    //   ios: 'hello.m4a',
+    //   android: `${RNFS.DocumentDirectoryPath}/${data[currentIndex].word.toLowerCase()}${'.mp4'}`,
+    // });
+
     const path = `${RNFS.DocumentDirectoryPath}/${data[
       currentIndex
     ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
-
-    if (await RNFS.exists(path)) {
+    if (await RNFS.exists(recpath)) {   
       setPlaying(prev => !prev);
-      const resul = await audioRecorderPlayer.startPlayer(path);
+      const resul = await audioRecorderPlayer.startPlayer(recpath);
 
       audioRecorderPlayer.addPlayBackListener(e => {
         let recordTime = audioRecorderPlayer.mmssss(
@@ -265,27 +324,43 @@ const Detail: React.FC<props> = ({navigation}) => {
     data.length > 0 && setting.Voice == 'Yes' && !visible
       ? palySound(currentIndex, '')
       : utils.resetPlayer();
+
+     
   }, [data]);
   const toggleRecorder = async (bool: boolean) => {
     if (bool) {
+      console.log('datatatt',bool);
+      
       await onStartRecord(bool);
     } else {
       await onStopRecord();
     }
   };
   const deleteRecorded = async () => {
-    const path = `${RNFS.DocumentDirectoryPath}/${data[
-      currentIndex
-    ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
-    const res = await RNFS.exists(path);
 
-    if (res) {
-      await RNFS.unlink(path);
+
+    console.log('snjncskjcskckns');
+    
+    const path = Platform.select({
+      ios: 'hello.m4a',
+      android: `${RNFS.DocumentDirectoryPath}/${data[currentIndex].word.toLowerCase()}${'.mp4'}`,
+    });
+
+    // const path = `${RNFS.DocumentDirectoryPath}/${data[
+    //   currentIndex
+    // ].word.toLocaleLowerCase()}${Platform.OS == 'android' ? '.mp4' : '.m4a'}`;
+    const res = await RNFS.exists(path);
+  
+    if (await RNFS.exists(recpath)) {
+      
+      
+      await RNFS.unlink(recpath);
       utils.updateRecord('', data[currentIndex].ID);
       getFildereddata('', false);
     }
   };
   useEffect(() => {
+   
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
@@ -297,6 +372,22 @@ const Detail: React.FC<props> = ({navigation}) => {
 
     return () => backHandler.remove();
   }, []);
+
+ const method =async()=>{
+  toggleRecorder(!recoring);
+
+setTimeout(async() => {
+  await onStopRecord();
+  setVisible(true);
+}, 100);
+
+  setVisible(true);
+
+ }
+
+
+
+
   return (
     <ImageBackground
       resizeMode="stretch"
@@ -330,6 +421,7 @@ const Detail: React.FC<props> = ({navigation}) => {
             }}
             hasPurchased={IAP?.hasPurchased ?? false}
           />
+          
           <Modals
             onRecord={() => {
               toggleRecorder(!recoring);
@@ -347,7 +439,7 @@ const Detail: React.FC<props> = ({navigation}) => {
               setVisible(false);
             }}
             onPlay={() => {
-              if (data[currentIndex].record_sound == 'yes') {
+              if (data[currentIndex]?.record_sound == 'yes') {
                 !playing ? onPlay() : onStopPlay();
               } else {
                 Alert.alert('Please record voice first.');
@@ -390,7 +482,7 @@ const Detail: React.FC<props> = ({navigation}) => {
               {!visible ? (
                 <View style={styles.RecordContainer}>
                   <TouchableOpacity
-                    onPress={() => setVisible(true)}
+                    onPress={() =>method()}
                     style={styles.recoring}>
                     <Image
                       resizeMode="contain"

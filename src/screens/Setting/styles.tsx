@@ -1,7 +1,10 @@
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {heightPercent as hp, widthPrecent as wp} from '../../utils/responsive';
 import {isTablet} from 'react-native-device-info';
 const istablet = isTablet();
+const { width, height } = Dimensions.get("window");
+const aspectRatio = height / width;
+const IsIPAD = aspectRatio < 1.6;
 export default StyleSheet.create({
   container: {
     flex: 1,
@@ -9,7 +12,7 @@ export default StyleSheet.create({
   logoContainer: {
     alignSelf: 'center',
     width: '100%',
-    marginTop: istablet ? '55%' : '70%',
+    marginTop: istablet ? '50%' : '70%',
   },
   btnContainer: {
     flexDirection: 'row',
@@ -17,6 +20,7 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: wp(8),
+   
   },
   img: {
     height: '100%',
@@ -32,17 +36,17 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: istablet ? '1.5%' : '0%',
+    paddingBottom: istablet ? hp(3.2) :'0%',
   },
   addContainer: {
     height: hp(9),
   },
   promoButtun: {
-    height: hp(5.5),
-    width: '60%',
+    height: hp(7),
+    width: istablet?wp(46):wp(60),
     position: 'absolute',
     zIndex: 1,
-    top: hp(2),
+    top: IsIPAD?hp(4):hp(4.7),
     alignSelf: 'center',
   },
 });

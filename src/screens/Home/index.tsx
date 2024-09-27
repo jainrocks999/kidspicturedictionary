@@ -92,7 +92,7 @@ const Home: React.FC<props> = ({navigation}) => {
             visible={IAP?.visible ?? false}
           />
         )}
-        <ScrollView>
+        <ScrollView style={{marginTop:'2%'}}>
           <CategoryList data={utils.Categoreis} onPress={handleOnCategory} />
           <CategoryList
             data={utils.promo}

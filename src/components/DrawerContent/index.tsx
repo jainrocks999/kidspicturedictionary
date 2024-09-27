@@ -10,6 +10,8 @@ import React from 'react';
 import {db_data} from '../../types/Genius/db';
 import {widthPrecent as wp, heightPercent as hp} from '../../utils/responsive';
 import utils from '../../utils';
+import { isTablet } from 'react-native-device-info';
+const isteblet =isTablet();
 type props = {
   data: db_data;
   onPress: (index: number) => void;
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   list: {
-    height: hp(10),
+    height: hp(15),
     borderBottomWidth: hp(0.2),
     borderBottomColor: 'grey',
   },
@@ -96,11 +98,11 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: '5%',
+    paddingLeft: '3%',
   },
   image: {
-    height: '90%',
-    width: '25%',
+    height:isteblet?hp(13):hp(13),
+    width: isteblet?wp(15):wp(22),
     borderRadius: wp(2),
   },
   menuBtn: {
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
     right: wp(2),
-    top: hp(2),
+    top: hp(0),
   },
   man: {
     height: hp(8),

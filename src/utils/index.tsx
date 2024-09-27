@@ -289,7 +289,7 @@ export default class utils {
         INTERSTITIAL: TestIds.INTERSTITIAL,
       },
       ios: {
-        BANNER: 'ca-app-pub-3339897183017333/3825481184',
+        BANNER: 'ca-app-pub-3339897183017333/2348747985',
         INTERSTITIAL: 'ca-app-pub-3339897183017333/6260601584',
       },
     }),

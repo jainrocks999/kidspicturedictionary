@@ -49,7 +49,7 @@ export default StyleSheet.create({
     zIndex: 1,
     flexDirection: 'row',
     top: hp(1),
-    width: '95%',
+    width: '98%',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -58,6 +58,6 @@ export default StyleSheet.create({
     height: hp(8),
     width: hp(8),
     position: 'absolute',
-    right: wp(4),
+    right: wp(2.7),
   },
 });

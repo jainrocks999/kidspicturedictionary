@@ -5,7 +5,8 @@ import utils from '../../utils';
 import {useNavigation} from '@react-navigation/native';
 import {navigationParams} from '../../navigation';
 import {StackNavigationProp} from '@react-navigation/stack';
-
+import {isTablet}from 'react-native-device-info'
+const isteblet =isTablet();
 type props = {
   ishome: boolean;
   onRightPress: () => void;
@@ -71,14 +72,14 @@ const Header: React.FC<props> = ({
         ) : ishome && !hasPurchased ? (
           <TouchableOpacity
             onPress={onUpgradePress}
-            style={{height: hp(5.5), width: '60%', marginLeft: '-7%'}}>
+            style={{height: hp(7), width: isteblet?wp(43):wp(60), marginLeft: '-7%',overflow:'hidden'}}>
             <Image
               style={{height: '100%', width: '100%'}}
               source={require('../../assets/icon_image/upgrade.png')}
             />
           </TouchableOpacity>
         ) : null}
-        <TouchableOpacity onPress={onRightPress} style={styles.iconContainer}>
+        <TouchableOpacity onPress={onRightPress} style={[styles.iconContainer,{marginRight:'2%'}]}>
           {isDetail || ishome ? (
             <Image
               style={styles.icon}
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     //borderWidth: 1,
   },
   row: {
-    width: '93%',
+    width: '95%',
     alignSelf: 'center',
     height: '70%',
     marginTop: '2%',
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   iconContainer: {
-    height: hp(5.5),
+    height: hp(6),
     width: hp(5.5),
   },
   txt: {

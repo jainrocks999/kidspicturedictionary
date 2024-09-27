@@ -31,9 +31,25 @@ const Next: React.FC<props> = ({navigation}) => {
       return;
     }
     if (btn === 'repeat') {
-      navigation.replace('Detail_Screen');
-      return;
+      const currentIndex = utils.Categoreis.findIndex(
+        item => item.cate_name === currentCat,
+      );
+      if (currentIndex < utils.Categoreis.length-1) {
+        const item = utils.Categoreis[currentIndex];
+
+        handleOnCategory(item.cate_name);
+        return;
+      } else {
+        navigation.reset({index: 0, routes: [{name: 'Home_Screen'}]});
+      }
     }
+
+
+
+
+
+      // navigation.navigate('Detail_Screen');
+      
     if (btn === 'next') {
       const currentIndex = utils.Categoreis.findIndex(
         item => item.cate_name === currentCat,
